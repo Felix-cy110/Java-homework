@@ -1,0 +1,9 @@
+# 脚本递归编译 src 下的包目录，启动 com.campus.reservation.SystemMain。
+[[configurations]]
+id = "user:task05"
+name = "任务05：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

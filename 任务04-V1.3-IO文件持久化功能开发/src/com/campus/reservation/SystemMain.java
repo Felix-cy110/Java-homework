@@ -1,16 +1,29 @@
+package com.campus.reservation;
+
+import com.campus.reservation.entity.User;
+import com.campus.reservation.util.FileUtil;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-/** 校园资源预约系统 V1.2：使用用户实体保存注册与登录数据。 */
+/** V1.3 控制台入口：处理注册与登录，通过文件工具保存和恢复用户。 */
 public class SystemMain {
 
-    /** 循环处理登录和注册，退出后清空本次运行的账号数据。 */
+    /** 启动时加载用户，循环处理登录与注册，并及时保存新账号。 */
     public static void main(String[] args) {
-        System.out.println("=== 校园资源预约系统 V1.2 ===");
-        // 从空集合开始，只有本次运行中注册的账号可以登录。
-        List<User> users = new ArrayList<>();
+        System.out.println("=== 校园资源预约系统 V1.3 ===");
+        List<User> users;
+        try {
+            users = FileUtil.loadUsers();
+        } catch (IOException e) {
+            // 读取失败时停止，避免按空集合继续注册并覆盖历史数据。
+            System.err.println("用户数据加载失败：" + e.getMessage());
+            System.exit(1);
+            return;
+        }
 
         // 所有菜单共用输入资源，程序结束后自动关闭。
         try (Scanner scanner = new Scanner(System.in)) {
@@ -68,6 +81,15 @@ public class SystemMain {
                     }
                     // 注册成功时确定角色和时间，实体本身不生成业务数据。
                     User newUser = new User(username, password, "student", LocalDateTime.now());
+                    // 保存候选集合成功后再更新内存，写入失败不占用用户名。
+                    List<User> updatedUsers = new ArrayList<>(users);
+                    updatedUsers.add(newUser);
+                    try {
+                        FileUtil.saveUsers(updatedUsers);
+                    } catch (IOException e) {
+                        System.out.println("注册失败：用户数据保存失败，账号未创建。" + e.getMessage());
+                        continue;
+                    }
                     users.add(newUser);
                     System.out.println("注册成功，请选择登录。");
                     System.out.println("用户信息：" + newUser);

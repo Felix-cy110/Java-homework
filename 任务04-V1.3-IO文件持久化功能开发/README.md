@@ -1,6 +1,42 @@
 # 任务04 V1.3 IO文件持久化功能开发
 
-状态：实现完成，部分自测未执行，待用户验证。JDK 8 业务与持久化、JDK 8/17 启动命令自测通过；未直接操作 OpenIDEA 界面，新增配置的加载与点击运行待用户复测。
+状态：实现完成，部分自测未执行，待用户验证。本次分包调整的命令行编译、业务回归和配置命令检查通过；OpenIDEA 界面点击运行待用户复测。原版本已获用户验收并提交，本次改动尚未验收或提交。
+
+## 本次分包调整（2026-11-09）
+
+用户明确要求“任务4和任务3也要这样”。以本任务已验收提交 `c72bc53` 及当前实际源码为基础继续整理：用户已将实体、工具移动到 `src/entity`、`src/utils`，但源码仍无包声明，编译脚本仍指向旧路径。现在统一为 `com.campus.reservation` 根包及 `entity`、`util` 子包，补齐 import、递归编译和完整主类名。保留用户移动文件中的业务实现，持久化仍使用本任务目录的 `user.txt`。
+
+| 要求 | 实现位置 | 验证方法 | 本次结果 |
+| --- | --- | --- | --- |
+| 按职责管理 Java 包，保留精简中文注释 | `src/com/campus/reservation/`、`entity/`、`util/` | 核对 package、import、路径及业务代码差异 | 通过 |
+| 继续使用 JDK 与脚本独立运行 | `run.ps1`、原 OpenIDEA 配置 | JDK 8 编译及配置命令启动 | 命令通过；IDE 界面待用户复测 |
+| 保留注册、登录与文件持久化行为 | `SystemMain`、`User`、`FileUtil` | 分包前后对照、重启登录、损坏数据保护 | 通过 |
+
+本次仅调整包、目录和启动入口，不增加构建工具、框架或业务层。下方原任务实现与验收记录保留；本次结果另行记录。
+
+```text
+src/com/campus/reservation/
+├── SystemMain.java
+├── entity/
+│   └── User.java
+└── util/
+    └── FileUtil.java
+```
+
+本次实际验证：Oracle JDK `1.8.0_341`、默认 JDK `17.0.12`、Windows PowerShell 5.1、Python `3.11.9` 标准库。对照快照来自用户已移动到 `entity`、`utils` 的实际源码；编译输出、演示账号、损坏数据及故意破坏的源码全部位于隔离临时目录，未使用现有账号文件。
+
+| 检查 | 本次结果 |
+| --- | --- |
+| 包声明与目录对应；除包、导入和类注释外源码一致；脚本保留 UTF-8 BOM | 通过，1 项 |
+| 从本任务目录使用 JDK 8、`-encoding UTF-8 -Xlint:all -classpath <临时输出> -d <临时输出>` 编译本任务全部源码 | 通过，无警告，1 项 |
+| 注册登录、重名及错误密码、未注册用户、空白账号、密码边界、中文空格、无效菜单、首页及注册账号/登录密码处 EOF | 10 项前后对照通过，仅归一化自动生成的注册时间，其他输出与退出码一致 |
+| 注册后重启登录；重启后重复注册；损坏文件启动 | 3 项通过：角色和时间一致，重名拒绝且文件不变，损坏文件报错退出且原文不变 |
+| 根目录、任务目录的配置命令（默认 JDK 17）；从两个工作目录调用脚本并指定 JDK 8 | 4 项通过，均完成注册、登录及重启登录，编译输出只有本任务的三个类，数据仅写入隔离任务副本 |
+| 隔离副本保留旧 class，再故意破坏源码 | 通过，编译失败时未启动旧程序，1 项 |
+
+本任务共 20 项检查通过。脚本实际执行命令为 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File run.ps1`；指定 JDK 8 时使用隔离副本脚本绝对路径并追加 `-JdkHome D:\jdk8`。任务 1、2、5、原始 DOCX 和现有数据的 SHA-256 校验一致（两任务共用一次检查）。
+
+未执行：OpenIDEA 界面点击、其他系统及 JDK 版本；本次未重复原版文件占用等全部异常测试，IO 业务代码与调整前一致，原测试仅作为历史记录。请按下方“用户验收步骤”复测；本次调整尚未获用户验收。
 
 前置版本：[任务03 V1.2](../任务03-V1.2-面向对象封装-User实体类重构/README.md)，基线提交 `7d9eaa5d9466f09f397f2c77df6649b7588d50b7`。用户于 2026-11-09 明确确认任务 3 已复测通过，并要求按该提交继续任务 4。开始时工作区干净。
 
@@ -16,13 +52,13 @@
 
 ## 基线、问题与方案
 
-任务 3 只在 `List<User>` 中保存账号，进程结束即丢失。本任务在独立目录继承已验收的 `SystemMain.java`、`User.java` 与通用启动脚本，增加 `FileUtil`，负责文件创建、加载与保存。`User.java` 与基线逐字节一致，任务 3 源码保持原样，仅在其 README 补记用户验收与已有提交。
+任务 3 只在 `List<User>` 中保存账号，进程结束即丢失。本任务原实现继承已验收的 `SystemMain.java`、`User.java` 与通用启动脚本，增加 `FileUtil`，负责文件创建、加载与保存。当时 `User.java` 与基线逐字节一致，未修改任务 3 源码；这次根据用户追加要求同步任务 3、4 的包目录、声明和类注释，业务代码不变。
 
 - 启动时调用 `FileUtil.loadUsers()`，恢复历史用户后进入菜单；首次运行自动创建空文件。
 - 注册保留账号非空、密码至少 6 位、账号唯一等原有校验。校验通过后保存包含新用户的候选集合，成功后再更新内存并提示注册成功。
 - 写入采用同目录临时文件，关闭流后替换正式文件；优先使用原子替换，不支持时退回普通替换。写入失败不新增内存用户，不显示成功，正常异常处理会清理本次临时文件。
 - 读取或格式校验失败时提示错误并停止启动，避免把历史数据当作空集合覆盖。使用标准 `IOException`，不提前引入任务 5 的自定义异常体系。
-- 迪米特法则：`SystemMain` 只调用工具类的加载和保存方法，不接触文件流；`FileUtil` 集中管理 IO，读写均使用 try-with-resources；实体仍只承载数据。当前不分包分层、不引入第三方框架。
+- 迪米特法则：`SystemMain` 只调用工具类的加载和保存方法，不接触文件流；`FileUtil` 集中管理 IO，读写均使用 try-with-resources；实体仍只承载数据。现按用户要求分包，仍未引入架构分层或第三方框架。
 
 ## 要求与验收清单
 
@@ -42,10 +78,10 @@
 
 ## 交付物与数据位置
 
-- [SystemMain.java](src/SystemMain.java)：继承菜单、注册与登录，增加启动加载、注册保存和 IO 错误处理。
-- [User.java](src/User.java)：原样继承四字段实体，保留原有精简中文注释。
-- [FileUtil.java](src/FileUtil.java)：创建、读取、保存用户文件，处理 UTF-8 文本和字段转义；类、方法与关键逻辑均有精简中文注释。
-- [run.ps1](run.ps1)：先编译三个源码文件，成功后启动；固定工作目录到本任务，支持 `-JdkHome`。
+- [SystemMain.java](src/com/campus/reservation/SystemMain.java)：根包入口，继承菜单、注册与登录，增加启动加载、注册保存和 IO 错误处理。
+- [User.java](src/com/campus/reservation/entity/User.java)：实体包，继承四字段实体，同步精简中文注释。
+- [FileUtil.java](src/com/campus/reservation/util/FileUtil.java)：工具包，创建、读取、保存用户文件，处理 UTF-8 文本和字段转义；类、方法与关键逻辑均有精简中文注释。
+- [run.ps1](run.ps1)：递归编译 `src` 下的全部源码，成功后以完整主类名启动；固定工作目录到本任务，支持 `-JdkHome`。
 - [任务目录配置](.openidea/run.toml)及[仓库根目录配置](../.openidea/run.toml)：新增“任务04：编译并运行”，均只引用本任务脚本，不包含本机 JDK 路径。
 - 本 README：原始要求对应、实现说明、真实自测及用户验收记录。
 
@@ -84,17 +120,18 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\MyProject\Java-homew
 ```powershell
 Set-Location 'D:\MyProject\Java-homework\任务04-V1.3-IO文件持久化功能开发'
 New-Item -ItemType Directory -Force -Path out | Out-Null
-& 'D:\jdk8\bin\javac.exe' -encoding UTF-8 -Xlint:all -classpath out -d out src\User.java src\FileUtil.java src\SystemMain.java
+$taskSources = @(Get-ChildItem -LiteralPath src -Filter '*.java' -Recurse -File | ForEach-Object { $_.FullName })
+& 'D:\jdk8\bin\javac.exe' -encoding UTF-8 -Xlint:all -classpath out -d out @taskSources
 if ($LASTEXITCODE -ne 0) { throw '编译失败，请先检查上方错误。' }
 chcp 65001 | Out-Null
-& 'D:\jdk8\bin\java.exe' '-Dfile.encoding=UTF-8' -cp out SystemMain
+& 'D:\jdk8\bin\java.exe' '-Dfile.encoding=UTF-8' -cp out com.campus.reservation.SystemMain
 ```
 
 显式指定 classpath，避免本机环境变量中的其他目录影响本任务。首次编写临时回归驱动时发现本机默认 CLASSPATH 含失效的 JDK 路径；修正临时编译命令为显式 classpath 后检查通过，没有修改全局环境。
 
-## 自测记录
+## 原版本自测记录（分包前）
 
-日期：2026-11-09。以下为助手实际自测，不代表用户已经验收任务 4。共 53 项检查：29 项前后对照、7 项持久化、11 项异常处理、6 项运行入口。
+日期：2026-11-09。以下保留原版本的 53 项自测事实：29 项前后对照、7 项持久化、11 项异常处理、6 项运行入口。原版后来已获用户验收，本次分包调整另行记录测试与验收状态。
 
 使用 Python 标准库 `subprocess.run` 驱动 JDK 8，设置每次 JVM 10 秒超时；脚本入口测试设置 30 秒超时。旧版编译、演示账号、损坏文件、占用测试和临时 Java 检查均位于独立临时目录，执行结束自动清理。当前任务目录另实际启动一次后输入 `0`，仅生成空 `user.txt`，未留测试账号。
 
@@ -168,11 +205,11 @@ F10 初测发现 Windows 返回的异常不够明确，补充文件类型检查�
 4. 再次启动，尝试注册同名账号与另一密码，应提示账号已存在；原密码仍可登录。检查五位密码注册失败，普通空白账号被拒绝。
 5. 查看三个源码文件，核对 IO 均在 `FileUtil`、流使用 try-with-resources、关键代码有精简中文注释。异常测试如需手动重复，请在本任务副本中进行，避免改动已有账号文件。
 
-## 用户验收记录
+## 原版本用户验收记录
 
 - 前置任务：任务 3 已由用户明确验收，并指定 `7d9eaa5d9466f09f397f2c77df6649b7588d50b7` 为继承基线。
-- 本任务反馈与验收：尚未收到验收结论；OpenIDEA 界面复测待用户完成。
-- 本任务提交：未提交，未暂存、未推送、未创建 PR。
-- 待办：用户按上述步骤复测并反馈；收到开始任务 5 的指令前不推进后续任务。
+- 本任务反馈与验收：用户于 2026-11-09 明确确认“已验收，继续完成任务5”，验收通过。
+- 本任务源码提交：`c72bc53e5a2e9fb8b1df3aa408ee6283609a5db3`（用户自行提交，本条验收记录补记于该提交之后）。
+- 后续：此前按用户指令在任务 5 独立目录继续开发；此次又获用户明确授权回到任务 3、4 调整分包，保留原阶段业务和运行数据。
 
 [返回任务索引](../README.md)

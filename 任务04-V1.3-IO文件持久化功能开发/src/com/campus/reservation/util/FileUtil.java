@@ -1,3 +1,7 @@
+package com.campus.reservation.util;
+
+import com.campus.reservation.entity.User;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -14,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** 用户文件工具：集中处理文件创建、读写及文本转换，调用方不接触 IO 流。 */
+/** 用户文件工具：集中处理用户数据的创建、读写与转换，封装 IO 细节。 */
 public final class FileUtil {
     private static final Path USER_FILE = Paths.get("user.txt");
 

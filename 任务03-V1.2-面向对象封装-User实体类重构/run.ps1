@@ -29,13 +29,15 @@ try {
     New-Item -ItemType Directory -Force -Path out | Out-Null
     chcp.com 65001 | Out-Null
 
-    # 先一起编译两个源文件；编译失败时不启动旧的 class 文件。
-    & $taskCompiler -encoding UTF-8 -Xlint:all -classpath out -d out src\User.java src\SystemMain.java
+    # 递归编译 src 中的包目录，由 javac 生成对应的输出目录。
+    $taskSources = @(Get-ChildItem -LiteralPath src -Filter '*.java' -Recurse -File | ForEach-Object { $_.FullName })
+    & $taskCompiler -encoding UTF-8 -Xlint:all -classpath out -d out @taskSources
     if ($LASTEXITCODE -ne 0) {
         throw 'Compilation failed. SystemMain was not started.'
     }
 
-    & $taskJava '-Dfile.encoding=UTF-8' -cp out SystemMain
+    # 使用完整类名启动，编译失败时不会执行旧的 class 文件。
+    & $taskJava '-Dfile.encoding=UTF-8' -cp out com.campus.reservation.SystemMain
     if ($LASTEXITCODE -ne 0) {
         throw 'SystemMain exited with an error.'
     }

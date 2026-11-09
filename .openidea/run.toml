@@ -17,3 +17,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务04-V1.3-IO文件持久化功能开发"
 emulate-terminal = true
+
+# 任务 5 按包递归编译源码，以完整主类名启动并使用自己的 user.txt。
+[[configurations]]
+id = "user:task05"
+name = "任务05：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务05-V1.4-自定义异常"
+emulate-terminal = true

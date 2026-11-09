@@ -1,6 +1,40 @@
 # 任务03 V1.2 面向对象封装：User实体类重构
 
-状态：用户验收通过，源码已提交。用户于 2026-11-09 确认 OpenIDEA 启动、注册和登录已复测通过，并指定当前提交作为任务 4 基线。
+状态：实现完成，部分自测未执行，待用户验证。本次分包调整的命令行编译、业务回归和配置命令检查通过；OpenIDEA 界面点击运行待用户复测。原版本已获用户验收并提交，本次改动尚未验收或提交。
+
+## 本次分包调整（2026-11-09）
+
+用户明确要求“任务4和任务3也要这样”。以本任务已验收提交 `7d9eaa5` 及调整前实际源码为基础，将入口放入 `com.campus.reservation`，实体放入 `entity` 子包，并同步递归编译、完整主类名和文档。原先默认包中的文件集中在 `src`，不符合用户最新的职责分包要求。原有内存存储、注册和登录逻辑继续保留。
+
+| 要求 | 实现位置 | 验证方法 | 本次结果 |
+| --- | --- | --- | --- |
+| 按职责管理 Java 包，保留精简中文注释 | `src/com/campus/reservation/`、`entity/` | 核对 package、import、路径及业务代码差异 | 通过 |
+| 继续使用 JDK 与脚本独立运行 | `run.ps1`、原 OpenIDEA 配置 | JDK 8 编译及配置命令启动 | 命令通过；IDE 界面待用户复测 |
+| 保留注册、登录及重启后清空账号的行为 | `SystemMain`、`User` | 分包前后对照与重启验证 | 通过 |
+
+本次仅调整包、目录和启动入口，不增加构建工具、框架或业务层。下方原任务实现与验收记录保留；本次结果另行记录。
+
+```text
+src/com/campus/reservation/
+├── SystemMain.java
+└── entity/
+    └── User.java
+```
+
+本次实际验证：Oracle JDK `1.8.0_341`、默认 JDK `17.0.12`、Windows PowerShell 5.1、Python `3.11.9` 标准库。以调整前实际源码快照为对照，编译输出、演示账号和故意破坏的源码均在隔离临时目录中。
+
+| 检查 | 本次结果 |
+| --- | --- |
+| 包声明与目录对应；除包、导入和类注释外源码一致；脚本保留 UTF-8 BOM | 通过，1 项 |
+| 从本任务目录使用 JDK 8、`-encoding UTF-8 -Xlint:all -classpath <临时输出> -d <临时输出>` 编译本任务全部源码 | 通过，无警告，1 项 |
+| 注册登录、重名及错误密码、未注册用户、空白账号、密码边界、中文空格、无效菜单、首页及注册账号/登录密码处 EOF | 10 项前后对照通过，仅归一化自动生成的注册时间，其他输出与退出码一致 |
+| 注册后退出并重启 | 通过，登录失败且未生成 `user.txt`，1 项 |
+| 解析根目录与任务目录的配置并执行原始命令（默认 JDK 17）；从两个工作目录调用脚本并指定 JDK 8 | 4 项通过，均完成注册和登录，编译输出只有本任务的两个类 |
+| 隔离副本保留旧 class，再故意破坏源码 | 通过，编译失败时未启动旧程序，1 项 |
+
+本任务共 18 项检查通过。脚本实际执行命令为 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File run.ps1`；指定 JDK 8 时使用隔离副本脚本绝对路径并追加 `-JdkHome D:\jdk8`。临时驱动初次捕获编译错误时遇到 Windows 诊断编码差异，修正驱动的诊断解码后复测通过，未因此修改业务代码。任务 1、2、5、原始 DOCX 和现有数据的 SHA-256 校验一致（两任务共用一次检查）。
+
+未执行：OpenIDEA 界面点击、其他系统及 JDK 版本。请按下方“用户复测步骤”重新验证；原版本验收不自动代表此次分包调整已验收。
 
 前置版本：[任务02 V1.1](../任务02-V1.1-用户注册功能/README.md)。用户于 2026-11-09 明确确认任务 2 已验收，并要求开始任务 3。
 
@@ -20,7 +54,7 @@
 - 原有问题及原因：任务 2 的 `HashMap<String, String>` 只保存账号与密码，无法同时承载角色和注册时间。
 - 本次方案：在当前目录继承 `SystemMain.java`，新增只承载数据的 `User`，以 `List<User>` 保存用户，改用账号查找方法完成查重和登录。注册成功时由入口生成时间并指定学生角色，打印对象信息供验收。
 - 保留行为：注册非空与密码长度校验、用户名唯一、账号密码精确匹配、菜单循环、输入结束处理和内存存储规则继续沿用任务 2。
-- 设计原则：通过私有字段和访问方法实现封装；`User` 只负责承载与表示数据，业务校验、角色赋值、时间生成和集合操作留在 `SystemMain`，落实单一职责。当前不分包、不分层、不引入设计模式。
+- 设计原则：通过私有字段和访问方法实现封装；`User` 只负责承载与表示数据，业务校验、角色赋值、时间生成和集合操作留在 `SystemMain`，落实单一职责。原版使用默认包；现按用户要求分包，仍未引入架构分层或设计模式。
 - 保留历史：任务 2 源码保持原样，仅补记用户验收与已有源码提交信息。
 
 ## 要求与验收清单
@@ -41,9 +75,9 @@
 
 ## 交付物与实现说明
 
-- [SystemMain.java](src/SystemMain.java)：继承任务 2 的入口和交互，新增按账号遍历 `List<User>` 的查找方法；查重和登录共用查找结果，校验通过后才创建并加入用户对象。
-- [User.java](src/User.java)：新增用户实体、无参构造和四参数构造、四组 getter/setter、`toString()`。类、构造方法、字段访问和关键逻辑附有精简中文注释。
-- [run.ps1](run.ps1)：先编译两个源文件，成功后启动主类；支持指定 JDK，包含精简中文注释。
+- [SystemMain.java](src/com/campus/reservation/SystemMain.java)：根包入口，继承任务 2 的交互，新增按账号遍历 `List<User>` 的查找方法；查重和登录共用查找结果，校验通过后才创建并加入用户对象。
+- [User.java](src/com/campus/reservation/entity/User.java)：实体包，包含无参构造和四参数构造、四组 getter/setter、`toString()`。类、构造方法、字段访问和关键逻辑附有精简中文注释。
+- [run.ps1](run.ps1)：递归编译 `src` 下的全部源文件，成功后以完整主类名启动；支持指定 JDK，包含精简中文注释。
 - [任务目录运行配置](.openidea/run.toml)和[仓库根目录运行配置](../.openidea/run.toml)：适配 OpenIDEA 的两种打开方式，均调用本任务脚本；使用相对路径，不包含本机 JDK 路径或 IDE 私人状态。
 - 本 README：需求对应、继承记录、运行说明、自测与用户验收记录。本阶段无需 UML 或独立正式报告；新增启动配置用于修复用户反馈，不是额外的教师要求。
 
@@ -76,7 +110,7 @@
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\MyProject\Java-homework\任务03-V1.2-面向对象封装-User实体类重构\run.ps1" -JdkHome "D:\jdk8"
 ```
 
-换电脑时替换项目和 JDK 路径。请使用上述配置或脚本；本机复现的 `java ...\SystemMain.java` 单文件启动方式会遗漏独立的 `User.java`，出现用户反馈的 7 个“找不到符号”错误。
+换电脑时替换项目和 JDK 路径。请使用上述配置或脚本，一起编译全部包中的类；旧默认包版本的单文件启动错误复现保留在历史自测记录中。
 
 ### 手动编译运行
 
@@ -85,10 +119,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\MyProject\Java-homew
 ```powershell
 Set-Location 'D:\MyProject\Java-homework\任务03-V1.2-面向对象封装-User实体类重构'
 New-Item -ItemType Directory -Force -Path out | Out-Null
-& 'D:\jdk8\bin\javac.exe' -encoding UTF-8 -Xlint:all -classpath out -d out src\User.java src\SystemMain.java
+$taskSources = @(Get-ChildItem -LiteralPath src -Filter '*.java' -Recurse -File | ForEach-Object { $_.FullName })
+& 'D:\jdk8\bin\javac.exe' -encoding UTF-8 -Xlint:all -classpath out -d out @taskSources
 if ($LASTEXITCODE -ne 0) { throw '编译失败，请先检查上方错误。' }
 chcp 65001 | Out-Null
-& 'D:\jdk8\bin\java.exe' '-Dfile.encoding=UTF-8' -cp out SystemMain
+& 'D:\jdk8\bin\java.exe' '-Dfile.encoding=UTF-8' -cp out com.campus.reservation.SystemMain
 ```
 
 本次必须一起编译 `User.java` 与 `SystemMain.java`，运行工作目录保持为本任务目录。`-classpath out` 不引用其他任务；终端代码页和 Java 编码均设为 UTF-8 以显示中文。
@@ -113,11 +148,11 @@ student01
 
 两次显示的角色、注册时间应相同；示例账号密码不是内置账号，必须先注册。
 
-## 自测记录
+## 原版本自测记录（分包前）
 
-测试日期：2026-11-09。以下均为助手自测；用户已反馈 OpenIDEA 启动失败，本次修复待用户再次验收。
+测试日期：2026-11-09。以下保留原版本及 OpenIDEA 启动修复的自测事实；原版后来已获用户验收。这些历史命令使用当时的默认包与路径，不是当前分包版本的运行指令。
 
-1. 从本任务目录执行上述 JDK 8 编译命令，编译成功，`-Xlint:all` 无警告。执行 `& 'D:\jdk8\bin\javap.exe' -private -classpath out User SystemMain`，核对四个 private 字段、两个构造方法、八个 getter/setter、`toString()` 与主类方法。
+1. 从本任务目录执行当时的 JDK 8 命令，一起编译 `src/User.java`、`src/SystemMain.java`，编译成功，`-Xlint:all` 无警告。执行 `& 'D:\jdk8\bin\javap.exe' -private -classpath out User SystemMain`，核对四个 private 字段、两个构造方法、八个 getter/setter、`toString()` 与主类方法。
 2. 使用 Python 标准库 `subprocess.run` 做前后对照：将未改动的任务 2 源码编译到隔离临时目录，每个场景分别启动旧版和本目录新版。只排除版本标题差异及新增的 `用户信息：` 行，其余标准输出逐字一致，并同时核对预期结果。30 个场景含重启前后两次运行，共启动 62 次命令行 JVM，全部退出码为 0、标准错误为空；每次超时限制为 10 秒。
 3. 新版每次注册或登录成功的输出均检查四个字段标识、学生角色、密码固定掩码、合法注册时间，并核对注册时间位于测试执行时段内。同一进程中同一用户再次显示时，注册时间保持不变；失败操作不新增用户信息输出。
 4. 在隔离临时目录编写并编译无第三方框架的 `UserContractCheck`，以 `out;<临时检查目录>` 为 classpath 启动，四项实体检查通过，退出码为 0、标准错误为空。临时旧版编译输出和检查源码已自动清理，没有写入课程源码目录。
@@ -154,7 +189,7 @@ student01
 | 29 | 两个账号交叉使用对方密码失败，各自密码成功 | 通过 |
 | 30 | 退出重启后账号不存在，可以重新注册 | 通过 |
 
-### OpenIDEA 启动问题复测
+### 原版本 OpenIDEA 启动问题复测
 
 用户反馈：在 OpenIDEA 运行 `SystemMain.java`，7 处无法解析 `User`，最终提示“错误: 编译失败”。从仓库根目录执行以下命令，在本机 JDK 17 下复现相同的 7 个错误，退出码为 1：
 
@@ -188,7 +223,7 @@ L01、L02、L03、L04、L06 均运行完整的“中文账号注册 → 登录 �
 4. 检查空账号和五位密码被拒绝，`0` 可退出；重新启动后旧账号不可登录，符合当前内存存储阶段。
 5. 阅读 `User.java`，核对私有字段、两个构造方法、四组 getter/setter 和 `toString()`；阅读 `SystemMain.java`，核对集合为 `List<User>`，业务校验与时间生成仍在主类。完成后反馈验收结论。
 
-## 用户验收记录
+## 原版本用户验收记录
 
 - 用户反馈（2026-11-09）：OpenIDEA 启动时出现 7 个找不到 `User` 的错误；增加编译运行入口后，用户明确回复“已复测通过，按当前提交继续”。
 - 本任务用户验收：通过，包含修复后的 OpenIDEA 启动、注册和登录；用户已要求开始任务 4。

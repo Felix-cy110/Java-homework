@@ -1,6 +1,8 @@
+package com.campus.reservation.entity;
+
 import java.time.LocalDateTime;
 
-/** 用户实体：只承载账号、密码、角色与注册时间，不处理业务规则。 */
+/** 用户实体：封装账号、密码、角色与注册时间，业务校验由入口负责。 */
 public class User {
     private String username;
     private String password;
