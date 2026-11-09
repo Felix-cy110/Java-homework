@@ -1,0 +1,9 @@
+# 从仓库根目录打开时，使用任务 3 的独立编译运行入口。
+[[configurations]]
+id = "user:task03"
+name = "任务03：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务03-V1.2-面向对象封装-User实体类重构"
+emulate-terminal = true

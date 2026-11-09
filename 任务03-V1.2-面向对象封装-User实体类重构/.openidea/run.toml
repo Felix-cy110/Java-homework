@@ -1,0 +1,9 @@
+# 单独打开本任务时，先编译全部源码，再在交互终端运行。
+[[configurations]]
+id = "user:task03"
+name = "任务03：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true
