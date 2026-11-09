@@ -21,8 +21,11 @@ import java.util.UUID;
 
 /** V2.0 控制台入口：继承用户业务，按登录角色处理资源菜单与业务校验。 */
 public class SystemMain {
+    // 按用户要求提供课程默认管理员，仅在账号不存在时用于初始化。
+    private static final String DEFAULT_ADMIN_USERNAME = "admin";
+    private static final String DEFAULT_ADMIN_PASSWORD = "123456";
 
-    /** 加载用户、资源及预约关联，集中处理登录注册和系统错误。 */
+    /** 加载历史数据并初始化缺失的管理员，集中处理登录注册和系统错误。 */
     public static void main(String[] args) {
         System.out.println("=== 校园资源预约系统 V2.0 ===");
         String loadingFile = "user.txt";
@@ -34,6 +37,14 @@ public class SystemMain {
             loadingFile = "reserve.txt";
             // 启动时验证关联文件；实际删除前仍重读，避免漏过新增关联。
             FileUtil.loadReservedResourceIds();
+            try {
+                initializeDefaultAdministrator(users);
+            } catch (IOException e) {
+                // 管理员未成功落盘时停止启动，不保留仅在内存中有效的账号。
+                System.err.println("系统错误：默认管理员初始化失败，请检查 user.txt 的占用或访问权限后重试。");
+                System.exit(1);
+                return;
+            }
             while (true) {
                 String operation = "";
                 try {
@@ -98,11 +109,33 @@ public class SystemMain {
             System.err.println("系统错误：数据加载失败，请检查 " + loadingFile
                     + " 的内容、占用或访问权限后重试。");
             System.exit(1);
+        } catch (BusinessException e) {
+            // 同名普通账号属于可解释的初始化冲突，保留原数据并友好提示。
+            System.err.println("启动失败：" + e.getMessage());
+            System.exit(1);
         } catch (RuntimeException e) {
             // 未预期的系统错误停止运行，避免继续操作不确定的数据。
             System.err.println("系统错误：程序运行异常，请重新启动后重试。");
             System.exit(1);
         }
+    }
+
+    /** 仅补建缺失的默认管理员；已有管理员不重置，普通同名账号不提升权限。 */
+    private static void initializeDefaultAdministrator(List<User> users) throws IOException {
+        User existing = findUserByUsername(users, DEFAULT_ADMIN_USERNAME);
+        if (existing != null) {
+            if (!"admin".equals(existing.getRole())) {
+                throw new BusinessException("默认管理员账号 admin 已被非管理员占用，请先处理 user.txt 中的同名账号；原账号未被覆盖。");
+            }
+            return;
+        }
+        User administrator = new User(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD,
+                "admin", LocalDateTime.now());
+        List<User> updatedUsers = new ArrayList<>(users);
+        updatedUsers.add(administrator);
+        // 沿用注册的保存顺序，成功落盘后才改变内存，保留已有学生账号。
+        FileUtil.saveUsers(updatedUsers);
+        users.add(administrator);
     }
 
     /** 登录后按角色显示菜单；返回 false 表示 EOF，true 表示正常退出登录。 */
