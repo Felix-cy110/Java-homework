@@ -7,3 +7,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务03-V1.2-面向对象封装-User实体类重构"
 emulate-terminal = true
+
+# 任务 4 使用独立工作目录，避免与其他任务共享 user.txt。
+[[configurations]]
+id = "user:task04"
+name = "任务04：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务04-V1.3-IO文件持久化功能开发"
+emulate-terminal = true

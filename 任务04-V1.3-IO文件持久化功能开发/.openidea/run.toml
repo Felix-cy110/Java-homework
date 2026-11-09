@@ -1,0 +1,9 @@
+# 单独打开任务 4 时，先编译全部源码，并固定用户数据所在目录。
+[[configurations]]
+id = "user:task04"
+name = "任务04：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true
