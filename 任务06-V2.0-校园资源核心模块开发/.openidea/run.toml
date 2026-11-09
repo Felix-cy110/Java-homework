@@ -1,0 +1,9 @@
+# 单独打开任务 6 时，递归编译源码并使用本任务的用户、资源与预约关联文件。
+[[configurations]]
+id = "user:task06"
+name = "任务06：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

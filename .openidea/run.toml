@@ -27,3 +27,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务05-V1.4-自定义异常"
 emulate-terminal = true
+
+# 任务 6 独立编译运行，用户、资源与最小预约关联数据均位于当前任务。
+[[configurations]]
+id = "user:task06"
+name = "任务06：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务06-V2.0-校园资源核心模块开发"
+emulate-terminal = true
