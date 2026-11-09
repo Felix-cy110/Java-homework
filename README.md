@@ -17,6 +17,8 @@
 ```text
 Java-homework/
 ├── README.md
+├── LICENSE
+├── CONTRIBUTING.md
 ├── AGENTS.md
 ├── .gitignore
 ├── .gitattributes
@@ -101,6 +103,10 @@ Java-homework/
 
 基础总分 100 分。视图拓展最高加 5 分，任务 19 的进阶持久化拓展最高加 5 分，总加分上限 10 分。
 
+## 参与贡献
+
+欢迎通过 Issue 反馈问题，或通过 Pull Request 改进代码与文档。开始前请阅读[贡献指南](CONTRIBUTING.md)，了解开发范围、环境约定、自测与验收流程，以及提交和 PR 规范。
+
 ## 提交与 PR
 
 提交信息、PR 标题遵循 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/#specification)，描述使用中文，例如：
@@ -113,3 +119,7 @@ docs(task13): 更新 MVC 类图与运行说明
 ```
 
 PR 正文使用中文，写清原有问题、产生原因、当前解决方案、测试方法及结果。未执行的测试需如实说明原因，模板位于 [.github/pull_request_template.md](.github/pull_request_template.md)。
+
+## 许可证
+
+本仓库自主编写的代码与文档采用 [MIT License](LICENSE)，版权署名为 `Copyright (c) 2026 Felix-cy110`。原始课程任务书、评分标准等第三方材料的权利归原权利人所有，不由本许可证重新授权。
