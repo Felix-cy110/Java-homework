@@ -1,0 +1,9 @@
+# 单独打开任务 7 时，递归编译包含 Result 的全部源码，数据保存在当前任务。
+[[configurations]]
+id = "user:task07"
+name = "任务07：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

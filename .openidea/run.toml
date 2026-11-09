@@ -37,3 +37,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务06-V2.0-校园资源核心模块开发"
 emulate-terminal = true
+
+# 任务 7 继承包结构，独立编译 Result 与业务源码，不引用任务 6 的文件。
+[[configurations]]
+id = "user:task07"
+name = "任务07：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务07-V2.1-统一返回结果封装Result"
+emulate-terminal = true
