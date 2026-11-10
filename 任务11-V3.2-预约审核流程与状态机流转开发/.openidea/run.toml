@@ -1,0 +1,9 @@
+# 任务 11 递归编译所有包，固定当前任务的独立运行目录。
+[[configurations]]
+id = "user:task11"
+name = "任务11：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true
