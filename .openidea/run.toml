@@ -57,3 +57,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务08-V2.2-函数式编程"
 emulate-terminal = true
+
+# 任务 9 独立编译预约实体、完整持久化和预约状态联动业务。
+[[configurations]]
+id = "user:task09"
+name = "任务09：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务09-V3.0-资源预约核心业务开发"
+emulate-terminal = true

@@ -1,0 +1,9 @@
+# 单独打开任务 9 时，递归编译预约实体、资源业务和持久化源码，数据保存在当前任务。
+[[configurations]]
+id = "user:task09"
+name = "任务09：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true
