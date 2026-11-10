@@ -1,0 +1,4 @@
+# Visual Paradigm 打开和保存工程时产生的本机锁与自动备份。
+.*.vpp.lck
+*.vpp.bak_*
+*.vpp.vbak
