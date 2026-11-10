@@ -1,0 +1,1 @@
+demo-record-001	demo-available	student_demo	2026-11-09T09:00:00	2099-01-01T09:00:00	2099-01-01T10:00:00	PENDING	演示预约记录

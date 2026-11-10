@@ -1,0 +1,46 @@
+@startuml exceptions
+title 任务 10 · 业务异常继承明细\ncom.campus.reservation.exception
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 15
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+hide empty members
+set separator none
+left to right direction
+class RuntimeException <<JDK>>
+package exception #FDEEEE {
+  class BusinessException {
+    - {static} serialVersionUID : long
+    + BusinessException(message : String)
+  }
+  class EmptyParameterException
+  class PasswordErrorException
+  class PermissionDeniedException
+  class ReserveCancelException
+  class ReserveConflictException
+  class ReserveRecordNotFoundException
+  class ResourceNotFoundException
+  class ResourceReservedException
+  class ResourceUnavailableException
+  class UserAlreadyExistsException
+  class UserNotFoundException
+}
+RuntimeException <|-- BusinessException
+BusinessException <|-- EmptyParameterException
+BusinessException <|-- PasswordErrorException
+BusinessException <|-- PermissionDeniedException
+BusinessException <|-- ReserveCancelException
+BusinessException <|-- ReserveConflictException
+BusinessException <|-- ReserveRecordNotFoundException
+BusinessException <|-- ResourceNotFoundException
+BusinessException <|-- ResourceReservedException
+BusinessException <|-- ResourceUnavailableException
+BusinessException <|-- UserAlreadyExistsException
+BusinessException <|-- UserNotFoundException
+note bottom of BusinessException
+  继承任务 9 的异常体系；子类仅表示不同失败原因。
+  服务边界捕获业务/IO 异常并返回 Result.fail。
+  UI 展示中文消息；DAO 不处理角色权限或预约规则。
+end note
+@enduml

@@ -1,0 +1,92 @@
+@startuml models
+title 任务 10 · 实体字段与关联明细\ncom.campus.reservation.entity
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 15
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam nodesep 45
+hide empty members
+set separator none
+left to right direction
+
+package entity #F4F7FA {
+  class User {
+    - username : String
+    - password : String
+    - role : String
+    - registerTime : LocalDateTime
+    + User()
+    + User(username : String, password : String, role : String, registerTime : LocalDateTime)
+    + getUsername() : String
+    + getRole() : String
+    + toString() : String
+  }
+  class CampusResource {
+    - id : String
+    - name : String
+    - type : String
+    - status : String
+    - location : String
+    + CampusResource()
+    + CampusResource(id : String, name : String, type : String, status : String, location : String)
+    + getId() : String
+    + getStatus() : String
+    + toString() : String
+  }
+  class ReserveRecord {
+    - recordId : String
+    - resourceId : String
+    - applicantUsername : String
+    - applyTime : LocalDateTime
+    - reserveStartTime : LocalDateTime
+    - reserveEndTime : LocalDateTime
+    - status : ReserveStatus
+    - remark : String
+    + ReserveRecord()
+    + getRecordId() : String
+    + getResourceId() : String
+    + getApplicantUsername() : String
+    + getStatus() : ReserveStatus
+    + toString() : String
+  }
+  enum ReserveStatus {
+    PENDING
+    PASS
+    REJECT
+    CANCEL
+  }
+  class "Result<T>" as Result {
+    - success : boolean
+    - msg : String
+    - data : T
+    + Result()
+    - Result(success : boolean, msg : String, data : T)
+    + {static} success(data : T) : Result<T>
+    + {static} success(msg : String) : Result<T>
+    + {static} success(msg : String, data : T) : Result<T>
+    + {static} fail(msg : String) : Result<T>
+    + isSuccess() : boolean
+    + getMsg() : String
+    + getData() : T
+    + setSuccess(success : boolean) : void
+    + setData(data : T) : void
+    + toString() : String
+  }
+  ReserveRecord ..> User : applicantUsername\n逻辑外键
+  ReserveRecord ..> CampusResource : resourceId\n逻辑外键
+  ReserveRecord --> ReserveStatus : status
+  Result -[hidden]down-> ReserveRecord
+}
+note bottom of ReserveRecord
+  实体沿用任务 9：私有字段、无参/全参构造、getter/setter。
+  图中省略部分访问方法及 ReserveRecord 的八参数构造。
+  虚线外键表示通过字符串关联，并非直接持有实体引用。
+  非 PASS 记录可能保留已删除资源的 ID，历史记录不丢失。
+end note
+legend bottom
+  + public    - private
+  实体仅承载数据。Result 仅维护返回结构，不执行业务和 IO。
+  三个 Service 的返回类型为 Result<T>；DAO 检索返回 Optional<T>。
+endlegend
+@enduml

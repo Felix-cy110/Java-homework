@@ -67,3 +67,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务09-V3.0-资源预约核心业务开发"
 emulate-terminal = true
+
+# 任务 10 递归编译三层源码，数据文件保存在独立的任务 10 目录。
+[[configurations]]
+id = "user:task10"
+name = "任务10：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务10-V3.1-三层架构重构"
+emulate-terminal = true
