@@ -1,0 +1,9 @@
+# 单独打开任务 8 时，递归编译包含 Stream、Optional 与 Result 的全部源码，数据保存在当前任务。
+[[configurations]]
+id = "user:task08"
+name = "任务08：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

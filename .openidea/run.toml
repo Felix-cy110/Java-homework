@@ -47,3 +47,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务07-V2.1-统一返回结果封装Result"
 emulate-terminal = true
+
+# 任务 8 继承任务 7 的 Result 和数据格式，独立编译 Stream/Optional 改造后的源码。
+[[configurations]]
+id = "user:task08"
+name = "任务08：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务08-V2.2-函数式编程"
+emulate-terminal = true
