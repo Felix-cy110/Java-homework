@@ -1,0 +1,9 @@
+# 使用任务 12 自己的源码及数据目录。
+[[configurations]]
+id = "user:task12"
+name = "任务12：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

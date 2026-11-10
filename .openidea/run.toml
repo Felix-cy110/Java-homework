@@ -87,3 +87,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务11-V3.2-预约审核流程与状态机流转开发"
 emulate-terminal = true
+
+# 任务 12 独立编译单例与工厂改造后的源码。
+[[configurations]]
+id = "user:task12"
+name = "任务12：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务12-V3.3-工程优化"
+emulate-terminal = true
