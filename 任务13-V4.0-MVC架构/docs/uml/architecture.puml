@@ -1,0 +1,142 @@
+@startuml architecture
+title 任务 13 · V4.0 MVC：视图与控制器\ncom.campus.reservation
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 14
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam nodesep 40
+skinparam ranksep 65
+hide empty members
+set separator none
+top to bottom direction
+
+class SystemMain {
+  + {static} main(args : String[]) : void
+}
+package "view · 输入输出与展示" #E9F4FF {
+  class ConsoleView <<abstract, package-private>> {
+    # scanner : Scanner
+    # resourceController : ResourceController
+    # reserveController : ReserveController
+    # ConsoleView(scanner : Scanner, resourceController : ResourceController, reserveController : ReserveController)
+    + start(user : User) : boolean
+    # printMenu() : void
+    # handleChoice(choice : String, user : User) : boolean
+    # displayResult(result : Result<?>) : void
+    # readInput(prompt : String) : String
+    # readRequiredInput(prompt : String) : String
+    # parseDateTime(value : String, fieldName : String) : LocalDateTime
+  }
+  class MainView {
+    - userController : UserController
+    + MainView(userController : UserController, resourceController : ResourceController, reserveController : ReserveController)
+    + start() : int
+    + {static} printBanner() : void
+    + {static} showStartupError(message : String) : void
+    - openRoleMenu(user : User) : boolean
+  }
+  class AdminView {
+    + AdminView(scanner : Scanner, resourceController : ResourceController, reserveController : ReserveController)
+    # printMenu() : void
+    # handleChoice(choice : String, user : User) : boolean
+    - handleResourceOperation(user : User, choice : String) : void
+    - auditReservationFromInput(user : User) : Result<ReserveRecord>
+    - filterReservationsFromInput(user : User) : Result<List<ReserveRecord>>
+  }
+  class StudentView {
+    + StudentView(scanner : Scanner, resourceController : ResourceController, reserveController : ReserveController)
+    # printMenu() : void
+    # handleChoice(choice : String, user : User) : boolean
+    - submitReservationFromInput(user : User) : Result<ReserveRecord>
+  }
+}
+package "controller · 请求转发与异常边界" #EAEFFD {
+  class ControllerSupport <<abstract, package-private>> {
+    # execute(action : Supplier<Result<T>>) : Result<T>
+  }
+  class UserController {
+    - userService : UserOperations
+    + UserController()
+    + checkUsername(username : String) : Result<Void>
+    + initializeDefaultAdministrator() : Result<Void>
+    + registerUser(username : String, password : String) : Result<User>
+    + loginUser(username : String, password : String) : Result<User>
+    + findUserByUsername(username : String) : Result<User>
+  }
+  class ResourceController {
+    - resourceService : ResourceOperations
+    + ResourceController()
+    + addResource(user : User, name : String, type : String, location : String) : Result<CampusResource>
+    + queryResources(user : User, keyword : String) : Result<List<CampusResource>>
+    + updateResource(user : User, id : String, name : String, type : String, location : String, status : String) : Result<CampusResource>
+    + deleteResource(user : User, id : String) : Result<Void>
+  }
+  class ReserveController {
+    - reserveService : ReserveOperations
+    + ReserveController()
+    + submitReservation(user : User, resourceId : String, start : LocalDateTime, end : LocalDateTime, remark : String) : Result<ReserveRecord>
+    + queryMyReservations(user : User) : Result<List<ReserveRecord>>
+    + queryAllReservations(user : User) : Result<List<ReserveRecord>>
+    + queryPendingReservations(user : User) : Result<List<ReserveRecord>>
+    + filterReservations(user : User, resourceId : String, applicant : String, status : ReserveStatus) : Result<List<ReserveRecord>>
+    + auditReservation(user : User, recordId : String, decision : ReserveStatus, rejectReason : String) : Result<ReserveRecord>
+    + cancelReservation(user : User, recordId : String) : Result<ReserveRecord>
+  }
+}
+package "service · 业务接口（实现见 services 图）" #EFF9EE {
+  interface UserOperations
+  interface ResourceOperations
+  interface ReserveOperations
+  class UserService <<Singleton>>
+  class ResourceService <<Singleton>>
+  class ReserveService <<Singleton>>
+}
+package "dao · 启动加载（见 services 图）" #FFF4E4 {
+  class DaoFactory <<Factory>>
+}
+package "entity · 模型（见 models 图）" #F4F7FA {
+  class User
+  class "Result<T>" as Result
+}
+package "exception · 业务异常（见 exceptions 图）" #FDEEEE {
+  class BusinessException
+}
+SystemMain ..> MainView : 装配并启动
+SystemMain ..> DaoFactory : 加载三个 DAO
+ConsoleView <|-- MainView
+ConsoleView <|-- AdminView
+ConsoleView <|-- StudentView
+MainView ..> AdminView : 创建角色视图
+MainView ..> StudentView : 创建角色视图
+MainView --> UserController
+ConsoleView --> ResourceController
+ConsoleView --> ReserveController
+ControllerSupport <|-- UserController
+ControllerSupport <|-- ResourceController
+ControllerSupport <|-- ReserveController
+UserController --> UserOperations
+ResourceController --> ResourceOperations
+ReserveController --> ReserveOperations
+UserController ..> UserService : getInstance()
+ResourceController ..> ResourceService : getInstance()
+ReserveController ..> ReserveService : getInstance()
+UserOperations <|.. UserService
+ResourceOperations <|.. ResourceService
+ReserveOperations <|.. ReserveService
+ControllerSupport ..> BusinessException : 捕获
+ControllerSupport ..> Result : 返回
+ConsoleView ..> Result : 展示
+MainView ..> User : 登录模型与菜单路由
+note bottom of MainView
+  角色只决定菜单展示，权限由服务独立校验。
+  Scanner、System.in/out/err 全部位于 view 包。
+end note
+legend bottom
+  View → Controller → Service → DAO（后半段见 services 图）。
+  + public  - private  # protected  ~ package-private；下划线表示 static。
+  实线箭头：持有引用；虚线箭头：使用依赖；空心三角：继承或接口实现。
+  各图共享同名模型；仅显示核心成员，不表示未列出的方法不存在。
+endlegend
+@enduml

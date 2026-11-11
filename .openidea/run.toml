@@ -97,3 +97,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务12-V3.3-工程优化"
 emulate-terminal = true
+
+# 任务 13 独立编译 MVC 源码，继续使用本任务的数据副本。
+[[configurations]]
+id = "user:task13"
+name = "任务13：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务13-V4.0-MVC架构"
+emulate-terminal = true

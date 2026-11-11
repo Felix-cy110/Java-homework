@@ -8,7 +8,7 @@ A campus resource reservation system developed for a comprehensive software cons
 
 This page is available in Chinese and English. Task documentation and original course materials remain in Chinese.
 
-Current status: Tasks 01–11 have passed user acceptance and their source has been committed. Task 12 has passed self-tests and awaits user acceptance. Tasks 13–20 are not yet implemented.
+Current status: Tasks 01–12 have passed user acceptance and their source has been committed. Task 13's MVC architecture and data migration have passed self-tests and await user acceptance. Tasks 14–20 are not yet implemented.
 
 ## Original Requirements
 
@@ -51,17 +51,17 @@ As requested by the user on November 10, 2026, later stages also inherit existin
 
 Under the user's updated requirements, Tasks 03–08 organize Java packages by responsibility under `src/com/campus/reservation/`. The entry point stays in the root package. Task 03 introduces `entity`, Task 04 adds `util`, Task 05 adds `exception`, Task 06 extends this structure with resource management, Task 07 adds `Result` to `entity`, and Task 08 continues with the same package structure. Compilation and execution continue to use the JDK and existing scripts, without Maven or frameworks. Tasks 1 and 2 retain their original structure. The source of these decisions is recorded in the [requirements review](docs/需求核对.md).
 
-Tasks 01–12 contain source code for their respective stages; Tasks 13–20 contain placeholders. Task 10 introduced the UI / Service / DAO layers and UML, Task 11 completed reservation state transitions, and Task 12 adds singleton services and DAOs with a DAO factory. Each task runs independently.
+Tasks 01–13 contain source code for their respective stages; Tasks 14–20 contain placeholders. Task 10 introduced the UI / Service / DAO layers and UML, Task 11 completed reservation state transitions, Task 12 added singleton services and DAOs with a DAO factory, and Task 13 introduced View → Controller → Service → DAO while preserving business and persistence implementations. Each task runs independently.
 
-Tasks 03–12 provide OpenIDEA run configurations for their respective directories. Task 12 has its own copy of Task 11's 2 accounts, 4 resources and 1 reservation; see its README for migration details.
+Tasks 03–13 provide OpenIDEA run configurations that work from the repository root or their respective task directories. Task 13 has its own copy of Task 12's 2 accounts, 4 resources and 1 reservation; see its README for migration details.
 
-This local IntelliJ IDEA workspace contains independent modules and run configurations for Tasks 01–12; each uses its own task directory. The `.idea` configuration is local and ignored by Git. Task 12 was verified on the command line with JDK 8; its GUI run buttons await user verification.
+This local IntelliJ IDEA workspace contains independent modules and run configurations for Tasks 01–13; each uses its own task directory. The `.idea` configuration is local and ignored by Git. Task 13 was verified on the command line with JDK 8; its GUI run buttons await user verification.
 
 Configuration fix recorded on November 10, 2026: IDEA previously loaded only an empty root module, retained incorrect Maven import settings, and lacked compilation steps before launch. The task modules were restored, the incorrect Maven configuration was removed, and SDK, output, and build settings were completed. The JPS project loader bundled with the local IntelliJ IDEA `2025.3.1.1` installation validated all 20 modules, with zero JPS compilation errors. The compiled output of Tasks 01–09 successfully started under JDK 17 in isolated working directories and used Java 8 bytecode. Hashes of 131 protected files, including source code, existing launch configurations, and application data, remained unchanged. IDEA automatically reindexed the modules; the GUI Run button still awaits user verification. The `.idea/` configuration, backups, and validation records are stored only on this machine and ignored by Git, so a fresh clone will not include them.
 
 ## Task Index
 
-Tasks 01–11 have passed user acceptance and their source has been committed. Task 11 was committed as `05d8375`, followed by comment changes in `cfc1185`. Task 12 has passed self-tests and awaits user acceptance; no staging or commit was performed this round. Tasks 13–20 are not yet implemented.
+Tasks 01–12 have passed user acceptance and their source has been committed. Task 11 was committed as `05d8375`, followed by comment changes in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13 has passed self-tests and awaits user acceptance; no staging or commit was performed this round. Tasks 14–20 are not yet implemented.
 
 | Task | Version | Project |
 | --- | --- | --- |
@@ -100,9 +100,9 @@ Task 18's title conflicts with its detailed requirements. The directory retains 
 - Use JDK 8 or later and plain Java without third-party frameworks. Task 1 must be verified with JDK 8 as specified in the assignment.
 - Task 1 keeps all code in `SystemMain`. Under the user's confirmed requirements, Task 7 retains existing packages without adding architectural layers, which differs from the original requirement to avoid both packages and layers. A three-layer architecture is introduced in Task 10, followed by MVC in Task 13.
 - The console version is the required baseline. Additional user interfaces in Task 20 are optional for bonus points and must not modify core business code.
-- Tasks 10 and 13 require UML class diagrams for the three-layer and MVC architectures, respectively. Final delivery includes source code, a project report, and a recorded demonstration.
+- Tasks 10 and 13 deliver UML class diagrams for the three-layer and MVC architectures, respectively. Task 13 includes PlantUML, SVG / PNG, and a native VPP reopened and checked with Visual Paradigm 16.2, while preserving Task 10's diagrams. Final delivery includes source code, a project report, and a recorded demonstration.
 - Runtime user, resource, reservation, and log files are ignored by Git. Demo data intended for version control belongs in each task's `samples/` directory, with loading instructions.
-- Tasks 01–12 were independently compiled and run with JDK `1.8.0_341`; Tasks 01–11 passed user acceptance. Task 12 passed singleton, factory, business regression, write-failure recovery, state matrix, console and migration checks. IDE GUI buttons await user verification; see its README. Tasks 13–20 are not yet implemented or tested.
+- Tasks 01–13 were independently compiled and run with JDK `1.8.0_341`; Tasks 01–12 passed user acceptance. Task 13 passed MVC boundary, controller, singleton, factory, business regression, state machine, console, before/after comparison, and migration checks. IDE GUI buttons await user verification; see its README. Tasks 14–20 are not yet implemented or tested.
 
 ## Grading
 

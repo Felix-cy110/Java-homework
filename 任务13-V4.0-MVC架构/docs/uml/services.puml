@@ -1,0 +1,178 @@
+@startuml services
+title 任务 13 · V4.0 MVC：Service → DAO、单例与简单工厂\ncom.campus.reservation
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 14
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam nodesep 45
+skinparam ranksep 65
+hide empty members
+set separator none
+top to bottom direction
+package "service · 业务规则与单例" #EFF9EE {
+  interface UserOperations {
+    + initializeDefaultAdministrator() : Result<Void>
+    + checkUsername(username : String) : Result<Void>
+    + registerUser(username : String, password : String) : Result<User>
+    + loginUser(username : String, password : String) : Result<User>
+    + findUserByUsername(username : String) : Result<User>
+  }
+  interface ResourceOperations {
+    + addResource(user : User, name : String, type : String, location : String) : Result<CampusResource>
+    + queryResources(user : User, keyword : String) : Result<List<CampusResource>>
+    + updateResource(user : User, id : String, name : String, type : String, location : String, status : String) : Result<CampusResource>
+    + deleteResource(user : User, id : String) : Result<Void>
+  }
+  interface ReserveOperations {
+    + submitReservation(user : User, resourceId : String, start : LocalDateTime, end : LocalDateTime, remark : String) : Result<ReserveRecord>
+    + queryMyReservations(user : User) : Result<List<ReserveRecord>>
+    + queryAllReservations(user : User) : Result<List<ReserveRecord>>
+    + queryPendingReservations(user : User) : Result<List<ReserveRecord>>
+    + filterReservations(user : User, resourceId : String, applicant : String, status : ReserveStatus) : Result<List<ReserveRecord>>
+    + auditReservation(user : User, recordId : String, decision : ReserveStatus, rejectReason : String) : Result<ReserveRecord>
+    + cancelReservation(user : User, recordId : String) : Result<ReserveRecord>
+  }
+  class UserService <<Singleton>> {
+    - {static} INSTANCE : UserService
+    - {static} INITIALIZATION_ERROR : IOException
+    - userDao : UserDao
+    - UserService()
+    + {static} getInstance() : UserService
+  }
+  class ResourceService <<Singleton>> {
+    - {static} INSTANCE : ResourceService
+    - {static} INITIALIZATION_ERROR : IOException
+    - resourceDao : ResourceDao
+    - reserveDao : ReserveRecordDao
+    - ResourceService()
+    + {static} getInstance() : ResourceService
+  }
+  class ReserveService <<Singleton>> {
+    - {static} INSTANCE : ReserveService
+    - {static} INITIALIZATION_ERROR : IOException
+    - resourceDao : ResourceDao
+    - reserveDao : ReserveRecordDao
+    - ReserveService()
+    + {static} getInstance() : ReserveService
+    - {static} validateTransition(current : ReserveStatus, target : ReserveStatus) : void
+    - findReserveById(recordId : String) : Result<ReserveRecord>
+  }
+  class BusinessRules <<package-private>> {
+    ~ {static} requireAdministrator(user : User) : void
+    ~ {static} requireStudent(user : User, message : String) : void
+    ~ {static} validateNotEmpty(value : String, fieldName : String) : void
+    ~ {static} findResourceById(resourceDao : ResourceDao, id : String) : Result<CampusResource>
+    ~ {static} hasPassedReservation(records : List<ReserveRecord>, resourceId : String) : boolean
+  }
+}
+package "dao · 单例与文件 CRUD" #FFF4E4 {
+  class DaoFactory <<Factory>> {
+    - DaoFactory()
+    + {static} getUserDao() : UserDao
+    + {static} getResourceDao() : ResourceDao
+    + {static} getReserveRecordDao() : ReserveRecordDao
+  }
+  class UserDao <<Singleton>> {
+    - {static} INSTANCE : UserDao
+    - {static} INITIALIZATION_ERROR : IOException
+    - {static} USER_FILE : Path
+    - items : List<User>
+    - UserDao()
+    + {static} getInstance() : UserDao
+    + findAll() : List<User>
+    + findByUsername(key : String) : Optional<User>
+    + insert(item : User) : void
+    + update(item : User) : void
+    + delete(key : String) : void
+    + saveAll(updated : List<User>) : void
+  }
+  class ResourceDao <<Singleton>> {
+    - {static} INSTANCE : ResourceDao
+    - {static} INITIALIZATION_ERROR : IOException
+    - {static} RESOURCE_FILE : Path
+    - items : List<CampusResource>
+    - ResourceDao()
+    + {static} getInstance() : ResourceDao
+    + findAll() : List<CampusResource>
+    + findById(key : String) : Optional<CampusResource>
+    + insert(item : CampusResource) : void
+    + update(item : CampusResource) : void
+    + delete(key : String) : void
+    + saveAll(updated : List<CampusResource>) : void
+  }
+  class ReserveRecordDao <<Singleton>> {
+    - {static} INSTANCE : ReserveRecordDao
+    - {static} INITIALIZATION_ERROR : IOException
+    - {static} RESERVE_FILE : Path
+    - items : List<ReserveRecord>
+    - ReserveRecordDao()
+    + {static} getInstance() : ReserveRecordDao
+    + findAll() : List<ReserveRecord>
+    + findByRecordId(key : String) : Optional<ReserveRecord>
+    + insert(item : ReserveRecord) : void
+    + update(item : ReserveRecord) : void
+    + delete(key : String) : void
+    + saveAll(updated : List<ReserveRecord>) : void
+  }
+}
+package "utils · 文件辅助" #F3EDFA {
+  class FileUtil <<utility>> {
+    - FileUtil()
+    + {static} ensureFile(file : Path) : void
+    + {static} replaceFile(temporary : Path, target : Path) : void
+    + {static} escape(value : String) : String
+    + {static} unescape(value : String) : String
+    + {static} stripBom(line : String, lineNumber : int) : String
+  }
+}
+package "entity · 数据模型（见 models 图）" #F4F7FA {
+  class User
+  class CampusResource
+  class ReserveRecord
+  enum ReserveStatus
+  class "Result<T>" as Result
+}
+package "exception · 业务异常（见 exceptions 图）" #FDEEEE {
+  class BusinessException
+}
+UserOperations <|.. UserService
+ResourceOperations <|.. ResourceService
+ReserveOperations <|.. ReserveService
+UserService --> UserDao
+ResourceService --> ResourceDao
+ResourceService --> ReserveRecordDao
+ReserveService --> ResourceDao
+ReserveService --> ReserveRecordDao
+UserService ..> DaoFactory : 获取 DAO
+ResourceService ..> DaoFactory : 获取 DAO
+ReserveService ..> DaoFactory : 获取 DAO
+DaoFactory ..> UserDao : getInstance()
+DaoFactory ..> ResourceDao : getInstance()
+DaoFactory ..> ReserveRecordDao : getInstance()
+UserService ..> BusinessRules
+ResourceService ..> BusinessRules
+ReserveService ..> BusinessRules
+BusinessRules ..> ResourceDao : 主键查询
+BusinessRules ..> BusinessException : 抛出
+UserDao ..> FileUtil
+ResourceDao ..> FileUtil
+ReserveRecordDao ..> FileUtil
+UserDao "1" o-- "0..*" User : items
+ResourceDao "1" o-- "0..*" CampusResource : items
+ReserveRecordDao "1" o-- "0..*" ReserveRecord : items
+ReserveRecord --> ReserveStatus : status
+ReserveOperations ..> Result : 返回
+note bottom of DaoFactory
+  Service 与 DAO 保留任务 12 的饿汉单例实现。
+  DaoFactory 返回已有 DAO 单例，不重复加载文件。
+  加载异常保留至 getInstance() 抛出，修复文件后需重启。
+end note
+legend bottom
+  + public  - private  ~ package-private；下划线表示 static。
+  实线箭头：持有引用；虚线箭头：使用依赖；空心三角虚线：接口实现；空心菱形：集合聚合。
+  服务实现对应接口的全部方法，图中省略实现类重复的方法列表。
+  用户确认本阶段保留具体 DAO，DAO 接口留到任务 19。
+endlegend
+@enduml

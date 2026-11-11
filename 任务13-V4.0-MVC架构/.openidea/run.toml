@@ -1,0 +1,9 @@
+# 使用任务 13 自己的 MVC 源码和独立数据目录。
+[[configurations]]
+id = "user:task13"
+name = "任务13：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true
