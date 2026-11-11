@@ -61,7 +61,7 @@ Java-homework/
 
 ## 任务索引
 
-任务 01–12 用户验收通过且源码已提交；任务 11 源码提交为 `05d8375`、后续注释调整为 `cfc1185`，任务 12 源码提交为 `4aa55d6`。任务 13 自测通过、待用户验收，本轮未暂存或提交；任务 14–20 待实现。
+任务 01–12 用户验收通过且源码已提交；任务 11 源码提交为 `05d8375`、后续注释调整为 `cfc1185`，任务 12 源码提交为 `4aa55d6`。任务 13 源码提交为 `028a216`，自测通过、待用户验收；本次 README 调整尚未提交。任务 14–20 待实现。
 
 | 任务 | 版本 | 项目 |
 | --- | --- | --- |
@@ -87,6 +87,16 @@ Java-homework/
 | 20 | V6.0 | [项目视图拓展](任务20-V6.0-项目视图拓展/README.md) |
 
 任务 18 的标题与正文不一致，目录暂保留原标题；具体范围见需求核对记录。
+
+## UML 架构图
+
+任务 13 的 MVC 类图如下，调用方向为 **View → Controller → Service → DAO**。预览由 Visual Paradigm 16.2 原生工程导出，点击图片可查看原尺寸。
+
+[![任务13 MVC 类图：View 与 Controller](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)
+
+- [完整四张 UML 图与架构演进说明](任务13-V4.0-MVC架构/README.md#uml-交付物)：View / Controller、Service / DAO / 单例 / 工厂、实体与状态、异常继承。
+- [Visual Paradigm 可编辑工程（VPP）](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [主图 SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML 图源](任务13-V4.0-MVC架构/docs/uml/architecture.puml)。
+- [任务 10 三层架构 UML](任务10-V3.1-三层架构重构/README.md)：保留原阶段成果，便于对比三层架构到 MVC 的变化。
 
 ## 迭代方式
 

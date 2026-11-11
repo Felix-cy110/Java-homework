@@ -1,6 +1,6 @@
 # 任务13 V4.0 MVC架构
 
-状态：自测通过，待用户验收。用户已验收任务 12，继承源码提交 `4aa55d6`；本任务尚未提交、尚未获用户验收。
+状态：自测通过，待用户验收。用户已验收任务 12，继承源码提交 `4aa55d6`；本任务源码已保存于提交 `028a216`，尚未获用户验收。本次 README 调整尚未提交。
 
 前置版本：[任务12 V3.3](../任务12-V3.3-工程优化/README.md)。本任务继承已验收源码及独立数据副本，在当前目录增量重构，可独立编译、运行。
 
@@ -114,6 +114,34 @@ OpenIDEA 打开仓库或本任务目录，选择 **任务13：编译并运行**�
 | Service、DAO、单例与工厂 | [services.puml](docs/uml/services.puml) | [查看](docs/uml/services.svg) | [查看](docs/uml/services.png) | [查看](docs/uml/vpp-preview/services.png) |
 | 实体、状态与统一返回 | [models.puml](docs/uml/models.puml) | [查看](docs/uml/models.svg) | [查看](docs/uml/models.png) | [查看](docs/uml/vpp-preview/models.png) |
 | 业务异常继承 | [exceptions.puml](docs/uml/exceptions.puml) | [查看](docs/uml/exceptions.svg) | [查看](docs/uml/exceptions.png) | [查看](docs/uml/vpp-preview/exceptions.png) |
+
+以下预览均由上述 VPP 工程导出，与可编辑工程对应。点击图片可查看原尺寸；主图和服务图较宽，可使用表中的 SVG 放大查看文字。
+
+<!-- 更新 VPP 图时，同步导出以下四张预览，保持 README 与工程一致。 -->
+
+### 图 1：View 与 Controller
+
+展示入口装配、视图与控制器的职责及依赖，调用方向为 **View → Controller → Service**，服务到 DAO 的关系见图 2。
+
+[![MVC 类图：View 与 Controller](docs/uml/vpp-preview/architecture.png)](docs/uml/vpp-preview/architecture.png)
+
+### 图 2：Service、DAO、单例与工厂
+
+展示服务接口、服务与具体 DAO 的关系，以及单例实例和 `DaoFactory` 的依赖。
+
+[![MVC 类图：Service、DAO、单例与工厂](docs/uml/vpp-preview/services.png)](docs/uml/vpp-preview/services.png)
+
+### 图 3：实体、状态与统一返回
+
+展示 `User`、`CampusResource`、`ReserveRecord`、`ReserveStatus` 和 `Result<T>` 的属性、方法与关系。
+
+[![MVC 类图：实体、状态与统一返回](docs/uml/vpp-preview/models.png)](docs/uml/vpp-preview/models.png)
+
+### 图 4：业务异常继承
+
+展示业务异常的继承关系及可见性。
+
+[![MVC 类图：业务异常继承](docs/uml/vpp-preview/exceptions.png)](docs/uml/vpp-preview/exceptions.png)
 
 图中展示核心属性和方法、参数及返回类型、可见性、静态成员、抽象成员、依赖与关联、包边界和调用方向。`Result<T>` 保留泛型模型；Service 和 DAO 标注单例，DaoFactory 标注工厂。主图较宽，建议用 SVG 或在 VPP 中缩放查看。任务 10 的原图未被覆盖。
 

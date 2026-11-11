@@ -61,7 +61,7 @@ Configuration fix recorded on November 10, 2026: IDEA previously loaded only an 
 
 ## Task Index
 
-Tasks 01–12 have passed user acceptance and their source has been committed. Task 11 was committed as `05d8375`, followed by comment changes in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13 has passed self-tests and awaits user acceptance; no staging or commit was performed this round. Tasks 14–20 are not yet implemented.
+Tasks 01–12 have passed user acceptance and their source has been committed. Task 11 was committed as `05d8375`, followed by comment changes in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's source commit is `028a216`; it has passed self-tests and awaits user acceptance. These README changes have not been committed. Tasks 14–20 are not yet implemented.
 
 | Task | Version | Project |
 | --- | --- | --- |
@@ -87,6 +87,16 @@ Tasks 01–12 have passed user acceptance and their source has been committed. T
 | 20 | V6.0 | [Additional user interfaces](任务20-V6.0-项目视图拓展/README.md) |
 
 Task 18's title conflicts with its detailed requirements. The directory retains the original title for now; see the requirements review for the scope discussion.
+
+## UML Architecture Diagrams
+
+Task 13's MVC class diagram follows **View → Controller → Service → DAO**. This preview was exported from the native Visual Paradigm 16.2 project. Click the image to view it at full size.
+
+[![Task 13 MVC class diagram: View and Controller](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)
+
+- [All four UML diagrams and architecture evolution notes](任务13-V4.0-MVC架构/README.md#uml-交付物): View / Controller, Service / DAO / singletons / factory, entities and states, and exception inheritance.
+- [Editable Visual Paradigm project (VPP)](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [Main diagram SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML source](任务13-V4.0-MVC架构/docs/uml/architecture.puml).
+- [Task 10 three-layer architecture UML](任务10-V3.1-三层架构重构/README.md): the original stage is preserved for comparison with MVC.
 
 ## Iteration Workflow
 
