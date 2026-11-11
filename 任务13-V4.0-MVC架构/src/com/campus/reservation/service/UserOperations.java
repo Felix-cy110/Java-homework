@@ -1,6 +1,6 @@
 package com.campus.reservation.service;
 
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 
 /** 用户业务契约：视图依赖此小接口，具体实现负责校验和数据访问。 */

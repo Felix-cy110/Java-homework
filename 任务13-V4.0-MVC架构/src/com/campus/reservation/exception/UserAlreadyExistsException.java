@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 账号已存在的业务异常，阻止注册覆盖原用户。 */
 public class UserAlreadyExistsException extends BusinessException {
     private static final long serialVersionUID = 1L;

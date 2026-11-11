@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 取消异常：只有待审核或已通过预约允许取消。 */
 public class ReserveCancelException extends BusinessException {
     private static final long serialVersionUID = 1L;

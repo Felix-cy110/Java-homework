@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 预约关联异常：存在 PASS 预约时阻止删除对应资源。 */
 public class ResourceReservedException extends BusinessException {
     private static final long serialVersionUID = 1L;

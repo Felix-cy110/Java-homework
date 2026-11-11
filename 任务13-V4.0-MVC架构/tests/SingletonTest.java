@@ -1,3 +1,4 @@
+import com.campus.reservation.enums.ReserveStatus;
 import com.campus.reservation.dao.*;
 import com.campus.reservation.entity.*;
 import com.campus.reservation.service.*;
@@ -18,7 +19,7 @@ public class SingletonTest {
             return;
         }
         for (Class<?> type : new Class<?>[] {UserDao.class, ResourceDao.class,
-                ReserveRecordDao.class, UserService.class, ResourceService.class, ReserveService.class}) {
+                ReserveRecordDao.class, UserService.class, ResourceService.class, ReserveRecordService.class}) {
             for (Constructor<?> constructor : type.getDeclaredConstructors()) {
                 require(Modifier.isPrivate(constructor.getModifiers()), "构造器必须私有");
             }
@@ -31,7 +32,7 @@ public class SingletonTest {
         require(records == DaoFactory.getReserveRecordDao() && records == ReserveRecordDao.getInstance(), "预约 DAO 身份");
         require(UserService.getInstance() == UserService.getInstance(), "用户服务身份");
         require(ResourceService.getInstance() == ResourceService.getInstance(), "资源服务身份");
-        require(ReserveService.getInstance() == ReserveService.getInstance(), "预约服务身份");
+        require(ReserveRecordService.getInstance() == ReserveRecordService.getInstance(), "预约服务身份");
 
         int beforeUsers = users.findAll().size();
         int beforeResources = resources.findAll().size();

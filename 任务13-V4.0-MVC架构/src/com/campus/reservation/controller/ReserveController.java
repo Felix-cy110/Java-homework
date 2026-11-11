@@ -1,11 +1,11 @@
 package com.campus.reservation.controller;
 
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.enums.ReserveStatus;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 import com.campus.reservation.service.ReserveOperations;
-import com.campus.reservation.service.ReserveService;
+import com.campus.reservation.service.ReserveRecordService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +16,7 @@ public class ReserveController extends ControllerSupport {
 
     /** 获取预约服务单例，不直接获取 DAO。 */
     public ReserveController() throws IOException {
-        reserveService = ReserveService.getInstance();
+        reserveService = ReserveRecordService.getInstance();
     }
 
     /** 转发申请，时间冲突和申请人权限由服务判断。 */

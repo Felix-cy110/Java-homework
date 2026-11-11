@@ -1,5 +1,5 @@
 @startuml exceptions
-title 任务 13 · V4.0 MVC：业务异常继承明细\ncom.campus.reservation.exception
+title 任务 13 · V4.0 MVC：业务异常继承明细\ncom.campus.reservation · common / exception
 skinparam defaultFontName Microsoft YaHei
 skinparam defaultFontSize 15
 skinparam classAttributeIconSize 0
@@ -9,11 +9,13 @@ hide empty members
 set separator none
 left to right direction
 class RuntimeException <<JDK>>
-package exception #FDEEEE {
+package common #FDEEEE {
   class BusinessException {
     - {static} serialVersionUID : long
     + BusinessException(message : String)
   }
+}
+package exception #FFF4E4 {
   class EmptyParameterException
   class PasswordErrorException
   class PermissionDeniedException
@@ -41,7 +43,7 @@ BusinessException <|-- ResourceUnavailableException
 BusinessException <|-- UserAlreadyExistsException
 BusinessException <|-- UserNotFoundException
 note bottom of BusinessException
-  保留任务 12 的异常体系；子类仅表示不同失败原因。
+  BusinessException 归入 common，原异常子类保留在 exception。
   服务边界捕获业务/IO 异常并返回 Result.fail。
   控制器包装业务异常，View 展示中文消息；DAO 不处理权限和预约规则。
 end note

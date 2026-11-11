@@ -1,13 +1,17 @@
 package com.campus.reservation.service;
 
+import com.campus.reservation.enums.ResourceStatus;
 import com.campus.reservation.dao.DaoFactory;
 
 import com.campus.reservation.entity.CampusResource;
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.enums.ReserveStatus;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.entity.ResourceStatDTO;
+import com.campus.reservation.entity.UserStatDTO;
+import com.campus.reservation.entity.StatusStatDTO;
+import com.campus.reservation.common.BusinessException;
 import com.campus.reservation.exception.EmptyParameterException;
 import com.campus.reservation.exception.PermissionDeniedException;
 import com.campus.reservation.exception.ReserveStatusTransitionException;
@@ -22,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,17 +39,17 @@ import static com.campus.reservation.service.BusinessRules.validateNotEmpty;
 import static com.campus.reservation.service.BusinessRules.hasPassedReservation;
 import static com.campus.reservation.service.BusinessRules.findResourceById;
 
-/** 预约业务：申请、查询、审核和取消，协调资源与预约数据访问对象。 */
-public class ReserveService implements ReserveOperations {
-    private static final ReserveService INSTANCE;
+/** 预约业务及实时统计：协调资源和预约 DAO，报表仅聚合内存快照。 */
+public class ReserveRecordService implements ReserveOperations {
+    private static final ReserveRecordService INSTANCE;
     private static final IOException INITIALIZATION_ERROR;
 
     // 构建唯一服务，并保留 DAO 初始化错误供启动入口处理。
     static {
-        ReserveService instance = null;
+        ReserveRecordService instance = null;
         IOException error = null;
         try {
-            instance = new ReserveService();
+            instance = new ReserveRecordService();
         } catch (IOException e) {
             error = e;
         }
@@ -53,13 +60,13 @@ public class ReserveService implements ReserveOperations {
     private final ReserveRecordDao reserveDao;
 
     /** 通过工厂绑定共享 DAO。 */
-    private ReserveService() throws IOException {
+    private ReserveRecordService() throws IOException {
         this.resourceDao = DaoFactory.getResourceDao();
         this.reserveDao = DaoFactory.getReserveRecordDao();
     }
 
     /** 获取唯一服务实例。 */
-    public static ReserveService getInstance() throws IOException {
+    public static ReserveRecordService getInstance() throws IOException {
         if (INITIALIZATION_ERROR != null) {
             throw INITIALIZATION_ERROR;
         }
@@ -78,7 +85,7 @@ public class ReserveService implements ReserveOperations {
                 return Result.fail("预约失败：" + found.getMsg());
             }
             CampusResource resource = found.getData();
-            if (!"AVAILABLE".equals(resource.getStatus())) {
+            if (!ResourceStatus.AVAILABLE.name().equals(resource.getStatus())) {
                 throw new ResourceUnavailableException();
             }
             validateReservationTime(start, end);
@@ -194,13 +201,13 @@ public class ReserveService implements ReserveOperations {
                 return Result.fail("审核失败：" + resourceResult.getMsg());
             }
             CampusResource resource = resourceResult.getData();
-            if (!"AVAILABLE".equals(resource.getStatus())) {
+            if (!ResourceStatus.AVAILABLE.name().equals(resource.getStatus())) {
                 throw new ResourceUnavailableException();
             }
             List<CampusResource> updatedResources = new ArrayList<>(resources);
             int resourceIndex = resources.indexOf(resource);
             CampusResource occupied = new CampusResource(resource.getId(), resource.getName(), resource.getType(),
-                    "OCCUPIED", resource.getLocation());
+                    ResourceStatus.OCCUPIED.name(), resource.getLocation());
             updatedResources.set(resourceIndex, occupied);
             saveResourcesAndReservations(resources, updatedResources, updatedRecords);
             return Result.success("预约审核通过，资源已变为 OCCUPIED：", changed);
@@ -247,7 +254,7 @@ public class ReserveService implements ReserveOperations {
             CampusResource changedResource = resource;
             if (!hasPassedReservation(updatedRecords, existing.getResourceId())) {
                 changedResource = new CampusResource(resource.getId(), resource.getName(), resource.getType(),
-                        "AVAILABLE", resource.getLocation());
+                        ResourceStatus.AVAILABLE.name(), resource.getLocation());
                 updatedResources.set(resourceIndex, changedResource);
             }
             saveResourcesAndReservations(resources, updatedResources, updatedRecords);
@@ -257,6 +264,112 @@ public class ReserveService implements ReserveOperations {
         } catch (IOException e) {
             return Result.fail("系统错误：取消结果未完整保存，请检查 resource.txt 和 reserve.txt。");
         }
+    }
+
+    /** 管理员按资源查看全部状态的数量；已删除资源保留历史统计。 */
+    @Override
+    public Result<List<ResourceStatDTO>> queryResourceStatistics(User user) {
+        try {
+            requireAdministrator(user);
+            return Result.success("资源预约统计报表：", aggregateResourceStatistics());
+        } catch (BusinessException e) {
+            return Result.fail("统计失败：" + e.getMessage());
+        }
+    }
+
+    /** 每次重新聚合并按通过数降序截取，条数必须为正整数。 */
+    @Override
+    public Result<List<ResourceStatDTO>> queryHotResources(User user, int topN) {
+        try {
+            requireAdministrator(user);
+            if (topN <= 0) {
+                throw new BusinessException("TOP 条数必须为正整数。");
+            }
+            List<ResourceStatDTO> top = aggregateResourceStatistics().stream()
+                    .sorted(Comparator.comparingLong(ResourceStatDTO::getPassCount).reversed()
+                            .thenComparing(ResourceStatDTO::getResourceId))
+                    .limit(topN)
+                    .collect(Collectors.toList());
+            return Result.success("热门资源 TOP " + topN + "：", top);
+        } catch (BusinessException e) {
+            return Result.fail("统计失败：" + e.getMessage());
+        }
+    }
+
+    /** 按申请人分组；总提交数包含待审、通过、驳回及取消。 */
+    @Override
+    public Result<List<UserStatDTO>> queryUserStatistics(User user) {
+        try {
+            requireAdministrator(user);
+            List<UserStatDTO> statistics = reservationStream()
+                    .collect(Collectors.groupingBy(ReserveRecord::getApplicantUsername))
+                    .entrySet().stream()
+                    .map(entry -> {
+                        List<ReserveRecord> records = entry.getValue();
+                        Map<ReserveStatus, Long> counts = countStatuses(records);
+                        long total = records.stream().collect(Collectors.counting());
+                        return new UserStatDTO(entry.getKey(), total,
+                                counts.getOrDefault(ReserveStatus.PASS, 0L),
+                                counts.getOrDefault(ReserveStatus.REJECT, 0L));
+                    })
+                    .sorted(Comparator.comparing(UserStatDTO::getApplicantUsername))
+                    .collect(Collectors.toList());
+            return Result.success("用户预约统计报表：", statistics);
+        } catch (BusinessException e) {
+            return Result.fail("统计失败：" + e.getMessage());
+        }
+    }
+
+    /** 固定展示四种状态，缺失的分组补零，不缓存查询结果。 */
+    @Override
+    public Result<List<StatusStatDTO>> queryStatusStatistics(User user) {
+        try {
+            requireAdministrator(user);
+            Map<ReserveStatus, Long> counts = reservationStream()
+                    .collect(Collectors.groupingBy(ReserveRecord::getStatus, Collectors.counting()));
+            List<StatusStatDTO> statistics = Arrays.stream(ReserveStatus.values())
+                    .map(status -> new StatusStatDTO(status, counts.getOrDefault(status, 0L)))
+                    .collect(Collectors.toList());
+            return Result.success("全局预约状态汇总：", statistics);
+        } catch (BusinessException e) {
+            return Result.fail("统计失败：" + e.getMessage());
+        }
+    }
+
+    /** 查询当前 DAO 快照，空集合和空元素不会进入分组管道。 */
+    private Stream<ReserveRecord> reservationStream() {
+        return Optional.ofNullable(reserveDao.findAll()).orElseGet(Collections::emptyList)
+                .stream().filter(Objects::nonNull);
+    }
+
+    /** 用分组收集器统一计数，避免各报表维护手工计数器。 */
+    private Map<ReserveStatus, Long> countStatuses(List<ReserveRecord> records) {
+        return records.stream()
+                .collect(Collectors.groupingBy(ReserveRecord::getStatus, Collectors.counting()));
+    }
+
+    /** 只为有预约的资源生成 DTO，名称缺失时保留资源 ID 和历史记录。 */
+    private List<ResourceStatDTO> aggregateResourceStatistics() {
+        List<CampusResource> resources = Optional.ofNullable(resourceDao.findAll())
+                .orElseGet(Collections::emptyList);
+        return reservationStream().collect(Collectors.groupingBy(ReserveRecord::getResourceId))
+                .entrySet().stream()
+                .map(entry -> {
+                    List<ReserveRecord> records = entry.getValue();
+                    Map<ReserveStatus, Long> counts = countStatuses(records);
+                    long total = records.stream().collect(Collectors.counting());
+                    long pass = counts.getOrDefault(ReserveStatus.PASS, 0L);
+                    // 使用浮点除法；没有申请时通过率定义为零。
+                    double rate = total == 0 ? 0.0 : (double) pass / total;
+                    String name = resources.stream().filter(Objects::nonNull)
+                            .filter(resource -> entry.getKey().equals(resource.getId())).findFirst()
+                            .map(CampusResource::getName).orElse("资源已删除");
+                    return new ResourceStatDTO(entry.getKey(), name, total, pass,
+                            counts.getOrDefault(ReserveStatus.REJECT, 0L),
+                            counts.getOrDefault(ReserveStatus.CANCEL, 0L), rate);
+                })
+                .sorted(Comparator.comparing(ResourceStatDTO::getResourceId))
+                .collect(Collectors.toList());
     }
 
     /** 审核与取消都经过枚举规则，空状态也转为业务失败。 */

@@ -1,6 +1,6 @@
 package com.campus.reservation.controller;
 
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 import com.campus.reservation.service.UserOperations;
 import com.campus.reservation.service.UserService;
@@ -15,9 +15,12 @@ public class UserController extends ControllerSupport {
         userService = UserService.getInstance();
     }
 
-    /** 沿用账号校验结果，保留输入密码前提示空账号的交互顺序。 */
+    /** 控制器检查账号非空，保留输入密码前提示失败的顺序。 */
     public Result<Void> checkUsername(String username) {
-        return execute(() -> userService.checkUsername(username));
+        return execute(() -> {
+            requireNotEmpty(username, "账号");
+            return userService.checkUsername(username);
+        });
     }
 
     /** 通过业务层补建默认管理员，控制器不访问用户文件。 */

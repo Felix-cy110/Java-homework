@@ -2,9 +2,9 @@ package com.campus.reservation.service;
 
 import com.campus.reservation.dao.DaoFactory;
 
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.common.BusinessException;
 import com.campus.reservation.exception.PasswordErrorException;
 import com.campus.reservation.exception.UserAlreadyExistsException;
 import com.campus.reservation.exception.UserNotFoundException;

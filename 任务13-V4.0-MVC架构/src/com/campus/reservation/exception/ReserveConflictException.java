@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 预约冲突异常：同一资源的已通过时间段发生重叠时拒绝申请。 */
 public class ReserveConflictException extends BusinessException {
     private static final long serialVersionUID = 1L;

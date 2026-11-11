@@ -1,4 +1,4 @@
-package com.campus.reservation.entity;
+package com.campus.reservation.common;
 
 /** 通用结果实体：仅封装操作状态、中文消息和数据，不处理业务或文件读写。 */
 public class Result<T> {

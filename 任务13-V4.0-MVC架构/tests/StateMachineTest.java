@@ -2,10 +2,10 @@ import com.campus.reservation.dao.ReserveRecordDao;
 import com.campus.reservation.dao.ResourceDao;
 import com.campus.reservation.entity.CampusResource;
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.enums.ReserveStatus;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.ReserveService;
+import com.campus.reservation.service.ReserveRecordService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,7 +30,7 @@ public class StateMachineTest {
         User bob = new User("bob", "demo", "student", PAST);
         ResourceDao resources = ResourceDao.getInstance();
         ReserveRecordDao records = ReserveRecordDao.getInstance();
-        ReserveService service = ReserveService.getInstance();
+        ReserveRecordService service = ReserveRecordService.getInstance();
         ReserveStatus[] states = ReserveStatus.values();
         boolean[][] legal = {
             {false, true, true, true},

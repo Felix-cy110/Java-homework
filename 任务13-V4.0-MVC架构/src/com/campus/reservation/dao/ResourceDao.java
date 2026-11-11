@@ -1,5 +1,6 @@
 package com.campus.reservation.dao;
 
+import com.campus.reservation.enums.ResourceStatus;
 import com.campus.reservation.entity.CampusResource;
 import static com.campus.reservation.utils.FileUtil.*;
 
@@ -155,8 +156,8 @@ public class ResourceDao {
             if (id.trim().isEmpty() || name.trim().isEmpty()
                     || !("教室".equals(type) || "实验室".equals(type)
                     || "设备".equals(type) || "场地".equals(type))
-                    || !("AVAILABLE".equals(status) || "OCCUPIED".equals(status)
-                    || "DISABLED".equals(status))) {
+                    || !(ResourceStatus.AVAILABLE.name().equals(status) || ResourceStatus.OCCUPIED.name().equals(status)
+                    || ResourceStatus.DISABLED.name().equals(status))) {
                 throw new IllegalArgumentException("资源字段无效");
             }
             return new CampusResource(id, name, type, status, location);

@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 密码不匹配的业务异常，由登录校验抛出。 */
 public class PasswordErrorException extends BusinessException {
     private static final long serialVersionUID = 1L;

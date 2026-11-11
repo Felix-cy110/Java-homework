@@ -3,9 +3,9 @@ package com.campus.reservation.view;
 import com.campus.reservation.controller.UserController;
 import com.campus.reservation.controller.ResourceController;
 import com.campus.reservation.controller.ReserveController;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.common.BusinessException;
 import java.util.Scanner;
 
 /** 主视图：处理登录注册交互，并根据登录模型选择角色菜单。 */

@@ -1,7 +1,7 @@
 package com.campus.reservation.dao;
 
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
+import com.campus.reservation.enums.ReserveStatus;
 import static com.campus.reservation.utils.FileUtil.*;
 
 import java.io.BufferedReader;

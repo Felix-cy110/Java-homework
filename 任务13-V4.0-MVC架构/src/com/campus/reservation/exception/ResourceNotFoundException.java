@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 资源不存在异常：按 ID 查找失败时交由菜单统一提示。 */
 public class ResourceNotFoundException extends BusinessException {
     private static final long serialVersionUID = 1L;

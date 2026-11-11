@@ -1,5 +1,6 @@
 package com.campus.reservation.entity;
 
+import com.campus.reservation.enums.ReserveStatus;
 import java.time.LocalDateTime;
 
 /** 预约记录实体：只承载预约字段，不包含校验、持久化或权限逻辑。 */

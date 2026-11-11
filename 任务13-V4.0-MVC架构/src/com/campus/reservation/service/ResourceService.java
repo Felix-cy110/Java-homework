@@ -1,11 +1,12 @@
 package com.campus.reservation.service;
 
+import com.campus.reservation.enums.ResourceStatus;
 import com.campus.reservation.dao.DaoFactory;
 
 import com.campus.reservation.entity.CampusResource;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.common.BusinessException;
 import com.campus.reservation.exception.ResourceReservedException;
 import com.campus.reservation.dao.ReserveRecordDao;
 import com.campus.reservation.dao.ResourceDao;
@@ -64,7 +65,7 @@ public class ResourceService implements ResourceOperations {
         try {
             List<CampusResource> resources = resourceDao.findAll();
             requireAdministrator(user);
-            validateResourceFields(name, type, location, "AVAILABLE");
+            validateResourceFields(name, type, location, ResourceStatus.AVAILABLE.name());
             String id;
             while (true) {
                 String candidateId = UUID.randomUUID().toString();
@@ -75,7 +76,7 @@ public class ResourceService implements ResourceOperations {
                     break;
                 }
             }
-            CampusResource resource = new CampusResource(id, name, type, "AVAILABLE", location);
+            CampusResource resource = new CampusResource(id, name, type, ResourceStatus.AVAILABLE.name(), location);
             resourceDao.insert(resource);
             return Result.success("资源新增成功：", resource);
         } catch (BusinessException e) {
@@ -93,7 +94,7 @@ public class ResourceService implements ResourceOperations {
             String search = Optional.ofNullable(keyword).orElse("").trim().toLowerCase(Locale.ROOT);
             List<CampusResource> visible = Optional.ofNullable(resources).orElseGet(Collections::emptyList).stream()
                     .filter(Objects::nonNull)
-                    .filter(resource -> isAdministrator(user) || "AVAILABLE".equals(resource.getStatus()))
+                    .filter(resource -> isAdministrator(user) || ResourceStatus.AVAILABLE.name().equals(resource.getStatus()))
                     .filter(resource -> search.isEmpty()
                             || Optional.ofNullable(resource.getName()).orElse("")
                             .toLowerCase(Locale.ROOT).contains(search))

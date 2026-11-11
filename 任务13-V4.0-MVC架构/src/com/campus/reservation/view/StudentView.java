@@ -3,7 +3,7 @@ package com.campus.reservation.view;
 import com.campus.reservation.controller.ResourceController;
 import com.campus.reservation.controller.ReserveController;
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 import java.time.LocalDateTime;
 import java.util.Scanner;

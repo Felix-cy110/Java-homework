@@ -1,4 +1,4 @@
-package com.campus.reservation.entity;
+package com.campus.reservation.enums;
 
 /** 预约状态及合法后继；审核和取消共用同一份流转规则。 */
 public enum ReserveStatus {

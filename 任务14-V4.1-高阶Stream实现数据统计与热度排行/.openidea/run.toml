@@ -1,0 +1,9 @@
+# 在当前任务目录编译运行，统计只读取本任务的内存数据。
+[[configurations]]
+id = "user:task14"
+name = "任务14：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "."
+emulate-terminal = true

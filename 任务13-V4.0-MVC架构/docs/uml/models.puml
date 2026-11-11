@@ -1,5 +1,5 @@
 @startuml models
-title 任务 13 · V4.0 MVC 模型：实体字段与关联\ncom.campus.reservation.entity
+title 任务 13 · V4.0 MVC 模型：实体字段与关联\ncom.campus.reservation · entity / enums / common
 skinparam defaultFontName Microsoft YaHei
 skinparam defaultFontSize 15
 skinparam classAttributeIconSize 0
@@ -54,12 +54,21 @@ package entity #F4F7FA {
     + getAuditTime() : LocalDateTime
     + toString() : String
   }
+}
+package enums #F0F5FE {
+  enum ResourceStatus {
+    AVAILABLE
+    OCCUPIED
+    DISABLED
+  }
   enum ReserveStatus {
     PENDING
     PASS
     REJECT
     CANCEL
   }
+}
+package common #FDEEEE {
   class "Result<T>" as Result {
     - success : boolean
     - msg : String
@@ -77,13 +86,13 @@ package entity #F4F7FA {
     + setData(data : T) : void
     + toString() : String
   }
+}
   ReserveRecord ..> User : applicantUsername\n逻辑外键
   ReserveRecord ..> CampusResource : resourceId\n逻辑外键
   ReserveRecord --> ReserveStatus : status
   Result -[hidden]down-> ReserveRecord
-}
 note bottom of ReserveRecord
-  模型保留任务 12：私有字段、无参/全参构造、getter/setter。
+  实体保留原有字段、构造器及 getter/setter；枚举与通用类型迁入专门包。
   图中省略部分访问方法及 ReserveRecord 的全参构造。
   虚线外键表示通过字符串关联，并非直接持有实体引用。
   非 PASS 记录可能保留已删除资源的 ID，历史记录不丢失。
@@ -91,6 +100,7 @@ end note
 legend bottom
   + public    - private
   实体仅承载数据。Result 仅维护返回结构，不执行业务和 IO。
-  三个 Service 的返回类型为 Result<T>；DAO 检索返回 Optional<T>。
+  Result<T> 的 T 为泛型返回数据；DAO 检索返回 Optional<T>。
+  CampusResource.status 仍为 String，服务与 DAO 使用 ResourceStatus.name() 保持文件兼容。
 endlegend
 @enduml

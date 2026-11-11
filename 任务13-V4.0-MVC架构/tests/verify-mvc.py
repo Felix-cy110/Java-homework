@@ -29,14 +29,42 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).digest()
 
 
-# 保留包逐文件比较，保证没有借重构更改业务、模型和持久化。
+# 只归一包声明、导入、服务名和等值枚举文本；其余原业务源码必须保持一致。
+def canonical_source(path):
+    text = path.read_text(encoding='utf-8-sig').replace('ReserveRecordService', 'ReserveService')
+    for status in ('AVAILABLE', 'OCCUPIED', 'DISABLED'):
+        text = text.replace('ResourceStatus.' + status + '.name()', chr(34) + status + chr(34))
+    text = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S)
+    return chr(10).join(line.strip() for line in text.splitlines()
+                       if line.strip() and not line.startswith(('package ', 'import ')))
+
+mapping = {'entity/Result.java': 'common/Result.java',
+           'entity/ReserveStatus.java': 'enums/ReserveStatus.java',
+           'exception/BusinessException.java': 'common/BusinessException.java',
+           'service/ReserveService.java': 'service/ReserveRecordService.java'}
 for name in ('service', 'dao', 'entity', 'exception', 'utils'):
-    old = baseline / package / name
-    new = task / package / name
-    paths = list(old.rglob('*.java'))
-    check({p.relative_to(old) for p in paths} == {p.relative_to(new) for p in new.rglob('*.java')}, name + ' files')
-    for path in paths:
-        check(digest(path) == digest(new / path.relative_to(old)), name + ' unchanged')
+    for path in (baseline / package / name).glob('*.java'):
+        relative = path.relative_to(baseline / package).as_posix()
+        target = task / package / mapping.get(relative, relative)
+        check(target.is_file(), relative + ' migrated target exists')
+        check(canonical_source(path) == canonical_source(target), relative + ' original behavior preserved')
+
+# 原文要求的包和类型必须存在，且旧路径不能遗留重复类。
+required = {'entity': {'User', 'CampusResource', 'ReserveRecord'},
+            'enums': {'ReserveStatus', 'ResourceStatus'}, 'common': {'Result', 'BusinessException'},
+            'view': {'MainView', 'AdminView', 'StudentView'},
+            'controller': {'UserController', 'ResourceController', 'ReserveController'},
+            'service': {'UserService', 'ResourceService', 'ReserveRecordService'},
+            'dao': {'UserDao', 'ResourceDao', 'ReserveRecordDao', 'DaoFactory'}}
+for folder, names in required.items():
+    for name in names:
+        path = task / package / folder / (name + '.java')
+        check(path.is_file(), folder + '/' + name + ' exists')
+        check('package com.campus.reservation.' + folder + ';' in path.read_text(encoding='utf-8'), name + ' package')
+for old in ('entity/Result.java', 'entity/ReserveStatus.java', 'exception/BusinessException.java', 'service/ReserveService.java'):
+    check(not (task / package / old).exists(), 'removed old path ' + old)
+check('ResourceStatus.AVAILABLE.name()' in (task / package / 'service/BusinessRules.java').read_text(encoding='utf-8'),
+      'resource enum participates in validation')
 
 for path in (task / package).rglob('*.java'):
     text = path.read_text(encoding='utf-8-sig')

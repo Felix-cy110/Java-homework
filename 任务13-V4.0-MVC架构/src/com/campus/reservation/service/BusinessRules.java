@@ -1,11 +1,12 @@
 package com.campus.reservation.service;
 
+import com.campus.reservation.enums.ResourceStatus;
 import com.campus.reservation.entity.CampusResource;
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.enums.ReserveStatus;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.common.BusinessException;
 import com.campus.reservation.exception.EmptyParameterException;
 import com.campus.reservation.exception.PermissionDeniedException;
 import com.campus.reservation.exception.ResourceNotFoundException;
@@ -47,14 +48,14 @@ final class BusinessRules {
         return user != null && "admin".equals(user.getRole());
     }
 
-    /** 校验资源必填项与允许的状态。 */
+    /** 用资源状态枚举的文本值校验，保持原字段和持久化格式。 */
     static void validateResourceFields(String name, String type, String location, String status) {
         validateNotEmpty(name, "资源名称");
         validateResourceType(type);
         if (location == null) {
             throw new EmptyParameterException("位置");
         }
-        if (!("AVAILABLE".equals(status) || "OCCUPIED".equals(status) || "DISABLED".equals(status))) {
+        if (!(ResourceStatus.AVAILABLE.name().equals(status) || ResourceStatus.OCCUPIED.name().equals(status) || ResourceStatus.DISABLED.name().equals(status))) {
             throw new BusinessException("资源状态只能为 AVAILABLE、OCCUPIED 或 DISABLED。");
         }
     }

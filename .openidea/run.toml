@@ -107,3 +107,13 @@ command = "powershell.exe"
 args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
 cwd = "任务13-V4.0-MVC架构"
 emulate-terminal = true
+
+# 任务 14 使用独立数据，管理员菜单提供实时统计报表。
+[[configurations]]
+id = "user:task14"
+name = "任务14：编译并运行"
+kind = "shell"
+command = "powershell.exe"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "run.ps1"]
+cwd = "任务14-V4.1-高阶Stream实现数据统计与热度排行"
+emulate-terminal = true

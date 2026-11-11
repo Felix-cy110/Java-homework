@@ -49,13 +49,13 @@ package "service · 业务规则与单例" #EFF9EE {
     - ResourceService()
     + {static} getInstance() : ResourceService
   }
-  class ReserveService <<Singleton>> {
-    - {static} INSTANCE : ReserveService
+  class ReserveRecordService <<Singleton>> {
+    - {static} INSTANCE : ReserveRecordService
     - {static} INITIALIZATION_ERROR : IOException
     - resourceDao : ResourceDao
     - reserveDao : ReserveRecordDao
-    - ReserveService()
-    + {static} getInstance() : ReserveService
+    - ReserveRecordService()
+    + {static} getInstance() : ReserveRecordService
     - {static} validateTransition(current : ReserveStatus, target : ReserveStatus) : void
     - findReserveById(recordId : String) : Result<ReserveRecord>
   }
@@ -131,29 +131,32 @@ package "entity · 数据模型（见 models 图）" #F4F7FA {
   class User
   class CampusResource
   class ReserveRecord
-  enum ReserveStatus
-  class "Result<T>" as Result
 }
-package "exception · 业务异常（见 exceptions 图）" #FDEEEE {
+package "enums · 状态常量" #F0F5FE {
+  enum ReserveStatus
+  enum ResourceStatus
+}
+package "common · 返回结构与异常基类" #FDEEEE {
+  class "Result<T>" as Result
   class BusinessException
 }
 UserOperations <|.. UserService
 ResourceOperations <|.. ResourceService
-ReserveOperations <|.. ReserveService
+ReserveOperations <|.. ReserveRecordService
 UserService --> UserDao
 ResourceService --> ResourceDao
 ResourceService --> ReserveRecordDao
-ReserveService --> ResourceDao
-ReserveService --> ReserveRecordDao
+ReserveRecordService --> ResourceDao
+ReserveRecordService --> ReserveRecordDao
 UserService ..> DaoFactory : 获取 DAO
 ResourceService ..> DaoFactory : 获取 DAO
-ReserveService ..> DaoFactory : 获取 DAO
+ReserveRecordService ..> DaoFactory : 获取 DAO
 DaoFactory ..> UserDao : getInstance()
 DaoFactory ..> ResourceDao : getInstance()
 DaoFactory ..> ReserveRecordDao : getInstance()
 UserService ..> BusinessRules
 ResourceService ..> BusinessRules
-ReserveService ..> BusinessRules
+ReserveRecordService ..> BusinessRules
 BusinessRules ..> ResourceDao : 主键查询
 BusinessRules ..> BusinessException : 抛出
 UserDao ..> FileUtil
@@ -164,6 +167,10 @@ ResourceDao "1" o-- "0..*" CampusResource : items
 ReserveRecordDao "1" o-- "0..*" ReserveRecord : items
 ReserveRecord --> ReserveStatus : status
 ReserveOperations ..> Result : 返回
+BusinessRules ..> ResourceStatus : 校验文本状态
+ResourceService ..> ResourceStatus : 设置状态文本
+ReserveRecordService ..> ResourceStatus : 设置状态文本
+ResourceDao ..> ResourceStatus : 文件值校验
 note bottom of DaoFactory
   Service 与 DAO 保留任务 12 的饿汉单例实现。
   DaoFactory 返回已有 DAO 单例，不重复加载文件。

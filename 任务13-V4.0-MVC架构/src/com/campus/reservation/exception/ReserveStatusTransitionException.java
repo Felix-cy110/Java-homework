@@ -1,6 +1,7 @@
 package com.campus.reservation.exception;
 
-import com.campus.reservation.entity.ReserveStatus;
+import com.campus.reservation.common.BusinessException;
+import com.campus.reservation.enums.ReserveStatus;
 
 /** 统一拦截重复审核、终态回退及其他非法预约状态流转。 */
 public class ReserveStatusTransitionException extends BusinessException {

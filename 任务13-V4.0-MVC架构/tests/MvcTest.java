@@ -1,6 +1,8 @@
+import com.campus.reservation.common.Result;
+import com.campus.reservation.enums.ReserveStatus;
 import com.campus.reservation.controller.*;
 import com.campus.reservation.entity.*;
-import com.campus.reservation.exception.BusinessException;
+import com.campus.reservation.common.BusinessException;
 import java.time.LocalDateTime;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;

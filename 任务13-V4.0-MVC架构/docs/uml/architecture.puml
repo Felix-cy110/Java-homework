@@ -55,6 +55,7 @@ package "view · 输入输出与展示" #E9F4FF {
 package "controller · 请求转发与异常边界" #EAEFFD {
   class ControllerSupport <<abstract, package-private>> {
     # execute(action : Supplier<Result<T>>) : Result<T>
+    # requireNotEmpty(value : String, fieldName : String) : void
   }
   class UserController {
     - userService : UserOperations
@@ -91,16 +92,16 @@ package "service · 业务接口（实现见 services 图）" #EFF9EE {
   interface ReserveOperations
   class UserService <<Singleton>>
   class ResourceService <<Singleton>>
-  class ReserveService <<Singleton>>
+  class ReserveRecordService <<Singleton>>
 }
 package "dao · 启动加载（见 services 图）" #FFF4E4 {
   class DaoFactory <<Factory>>
 }
 package "entity · 模型（见 models 图）" #F4F7FA {
   class User
-  class "Result<T>" as Result
 }
-package "exception · 业务异常（见 exceptions 图）" #FDEEEE {
+package "common · 返回结构与异常基类" #FDEEEE {
+  class "Result<T>" as Result
   class BusinessException
 }
 SystemMain ..> MainView : 装配并启动
@@ -121,10 +122,10 @@ ResourceController --> ResourceOperations
 ReserveController --> ReserveOperations
 UserController ..> UserService : getInstance()
 ResourceController ..> ResourceService : getInstance()
-ReserveController ..> ReserveService : getInstance()
+ReserveController ..> ReserveRecordService : getInstance()
 UserOperations <|.. UserService
 ResourceOperations <|.. ResourceService
-ReserveOperations <|.. ReserveService
+ReserveOperations <|.. ReserveRecordService
 ControllerSupport ..> BusinessException : 捕获
 ControllerSupport ..> Result : 返回
 ConsoleView ..> Result : 展示

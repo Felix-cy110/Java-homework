@@ -1,8 +1,8 @@
 package com.campus.reservation.service;
 
 import com.campus.reservation.entity.ReserveRecord;
-import com.campus.reservation.entity.ReserveStatus;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.enums.ReserveStatus;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;

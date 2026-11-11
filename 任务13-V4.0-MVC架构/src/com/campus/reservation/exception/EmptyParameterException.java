@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 参数为空的业务异常，供账号和密码校验共用。 */
 public class EmptyParameterException extends BusinessException {
     private static final long serialVersionUID = 1L;

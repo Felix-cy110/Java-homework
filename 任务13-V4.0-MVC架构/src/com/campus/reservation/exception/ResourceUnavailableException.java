@@ -1,5 +1,8 @@
 package com.campus.reservation.exception;
 
+import com.campus.reservation.common.BusinessException;
+
+
 /** 资源不可预约异常：资源必须处于 AVAILABLE 状态才能提交申请。 */
 public class ResourceUnavailableException extends BusinessException {
     private static final long serialVersionUID = 1L;

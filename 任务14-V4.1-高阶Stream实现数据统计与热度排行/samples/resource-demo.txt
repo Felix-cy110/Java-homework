@@ -1,0 +1,4 @@
+demo-available	一号教室	教室	AVAILABLE	教学楼一层
+demo-occupied	实验室 B	实验室	OCCUPIED	实验楼二层
+demo-disabled	投影仪 C	设备	DISABLED	设备库
+demo-reserved	操场 D	场地	AVAILABLE	校区东侧

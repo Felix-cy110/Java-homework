@@ -1,7 +1,7 @@
 package com.campus.reservation.service;
 
 import com.campus.reservation.entity.CampusResource;
-import com.campus.reservation.entity.Result;
+import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
 import java.util.List;
 

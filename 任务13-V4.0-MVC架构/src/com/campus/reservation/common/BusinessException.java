@@ -1,4 +1,4 @@
-package com.campus.reservation.exception;
+package com.campus.reservation.common;
 
 /** 业务异常父类：统一异常包的公共类型，承载由入口展示的中文提示。 */
 public class BusinessException extends RuntimeException {
