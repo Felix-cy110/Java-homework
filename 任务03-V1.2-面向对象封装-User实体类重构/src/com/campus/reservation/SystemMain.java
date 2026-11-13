@@ -13,6 +13,7 @@ public class SystemMain {
     /** 循环处理登录和注册，退出后清空本次运行的账号数据。 */
     public static void main(String[] args) {
         System.out.println("=== 校园资源预约系统 V1.2 ===");
+        System.out.println("提示：输入 back 返回上一级菜单；最外层保持当前页面。输入 \\back 可作为普通文本 back。");
         // 从空集合开始，只有本次运行中注册的账号可以登录。
         List<User> users = new ArrayList<>();
 
@@ -27,6 +28,10 @@ public class SystemMain {
                     break;
                 }
                 String choice = scanner.nextLine().trim();
+                // 首页没有上级，返回命令仅重新展示首页。
+                if ("back".equals(choice)) {
+                    continue;
+                }
 
                 if ("0".equals(choice)) {
                     System.out.println("程序已退出。");
@@ -47,6 +52,11 @@ public class SystemMain {
                 }
                 // 整行读取，保留账号和密码中的空格用于精确匹配。
                 String username = scanner.nextLine();
+                // 未提交的输入直接丢弃，回到登录注册首页。
+                if ("back".equals(username.trim())) {
+                    continue;
+                }
+                username = literalInput(username);
                 if (!isValidUsername(username)) {
                     System.out.println(operation + "失败：账号不能为空。");
                     continue;
@@ -58,6 +68,11 @@ public class SystemMain {
                     break;
                 }
                 String password = scanner.nextLine();
+                // 未提交的输入直接丢弃，回到登录注册首页。
+                if ("back".equals(password.trim())) {
+                    continue;
+                }
+                password = literalInput(password);
                 User existingUser = findUserByUsername(users, username);
 
                 if (registering) {
@@ -103,5 +118,15 @@ public class SystemMain {
     /** 校验注册密码非空，且原始输入长度至少为 6。 */
     private static boolean isValidPassword(String password) {
         return password != null && !password.trim().isEmpty() && password.length() >= 6;
+    }
+
+    /** 反斜杠转义保留字，已有账号或字段为 back 时仍可按原值输入。 */
+    private static String literalInput(String value) {
+        int prefix = 0;
+        while (prefix < value.length() && value.charAt(prefix) == '\\') {
+            prefix++;
+        }
+        return prefix > 0 && "back".equals(value.substring(prefix).trim())
+                ? value.substring(1) : value;
     }
 }

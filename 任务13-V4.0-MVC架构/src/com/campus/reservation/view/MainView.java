@@ -22,6 +22,7 @@ public class MainView extends ConsoleView {
     /** 展示版本标题，启动失败也保留当前版本标识。 */
     public static void printBanner() {
         System.out.println("=== 校园资源预约系统 V4.0 ===");
+        System.out.println("提示：输入 back 返回上一级菜单；最外层保持当前页面。输入 \\back 可作为普通文本 back。");
     }
 
     /** 展示入口传入的启动错误，避免输出底层堆栈。 */
@@ -48,6 +49,10 @@ public class MainView extends ConsoleView {
                         break;
                     }
                     String choice = input.nextLine().trim();
+                    // 首页没有上级，返回命令仅重新展示首页。
+                    if ("back".equals(choice)) {
+                        continue;
+                    }
                     if ("0".equals(choice)) {
                         System.out.println("程序已退出。");
                         break;
@@ -79,6 +84,9 @@ public class MainView extends ConsoleView {
                             break;
                         }
                     }
+                } catch (BackNavigation e) {
+                    // 取消登录或注册，尚未调用写入业务，继续首页循环。
+                    continue;
                 } catch (BusinessException e) {
                     String prefix = operation.isEmpty() ? "" : operation + "失败：";
                     displayResult(Result.fail(prefix + e.getMessage()));

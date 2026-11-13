@@ -25,8 +25,15 @@ package "ui.console · 交互展示" #E9F4FF {
     + {static} showStartupError(message : String) : void
     - displayResult(result : Result<?>) : void
     - runResourceMenu(scanner : Scanner, user : User) : boolean
+    - {static} literalInput(value : String) : String
+  }
+  class BackNavigation <<package-private>> {
+    - {static} serialVersionUID : long
   }
 }
+class RuntimeException <<JDK>>
+RuntimeException <|-- BackNavigation
+ConsoleUI ..> BackNavigation : 输入返回，仅在 UI 捕获
 package "service · 业务校验与流程" #EFF9EE {
   interface UserOperations {
     + initializeDefaultAdministrator() : Result<Void>

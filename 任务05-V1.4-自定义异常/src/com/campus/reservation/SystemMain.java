@@ -20,6 +20,7 @@ public class SystemMain {
     /** 加载历史用户并处理菜单，集中捕获业务与系统异常。 */
     public static void main(String[] args) {
         System.out.println("=== 校园资源预约系统 V1.4 ===");
+        System.out.println("提示：输入 back 返回上一级菜单；最外层保持当前页面。输入 \\back 可作为普通文本 back。");
         // 所有菜单共用输入资源，程序结束后自动关闭。
         try (Scanner scanner = new Scanner(System.in)) {
             List<User> users = FileUtil.loadUsers();
@@ -34,6 +35,10 @@ public class SystemMain {
                         break;
                     }
                     String choice = scanner.nextLine().trim();
+                    // 首页没有上级，返回命令仅重新展示首页。
+                    if ("back".equals(choice)) {
+                        continue;
+                    }
                     if ("0".equals(choice)) {
                         System.out.println("程序已退出。");
                         break;
@@ -51,6 +56,11 @@ public class SystemMain {
                         break;
                     }
                     String username = scanner.nextLine();
+                    // 未提交的输入直接丢弃，回到登录注册首页。
+                    if ("back".equals(username.trim())) {
+                        continue;
+                    }
+                    username = literalInput(username);
                     validateUsername(username);
 
                     System.out.print("请输入密码：");
@@ -60,6 +70,11 @@ public class SystemMain {
                     }
                     // 保留整行输入中的空格，业务方法只校验，不修改原值。
                     String password = scanner.nextLine();
+                    // 未提交的输入直接丢弃，回到登录注册首页。
+                    if ("back".equals(password.trim())) {
+                        continue;
+                    }
+                    password = literalInput(password);
                     if (registering) {
                         User newUser = registerUser(users, username, password);
                         System.out.println("注册成功，请选择登录。");
@@ -146,5 +161,15 @@ public class SystemMain {
         if (value == null || value.trim().isEmpty()) {
             throw new EmptyParameterException(fieldName);
         }
+    }
+
+    /** 反斜杠转义保留字，已有账号或字段为 back 时仍可按原值输入。 */
+    private static String literalInput(String value) {
+        int prefix = 0;
+        while (prefix < value.length() && value.charAt(prefix) == '\\') {
+            prefix++;
+        }
+        return prefix > 0 && "back".equals(value.substring(prefix).trim())
+                ? value.substring(1) : value;
     }
 }

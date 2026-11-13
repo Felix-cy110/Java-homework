@@ -8,7 +8,7 @@ A campus resource reservation system developed for a comprehensive software cons
 
 This page is available in Chinese and English. Task documentation and original course materials remain in Chinese.
 
-Current status: Tasks 01–12 have passed user acceptance and their source has been committed. Task 13's original acceptance and commits remain recorded. As requested, Tasks 13 and 14 now follow the complete required package structure; both corrected versions have passed self-tests and await user acceptance. Tasks 15–20 are not yet implemented.
+Current status: Historical stage acceptance records are preserved. The corrected package structures for Tasks 13 and 14 are included in current commit `8f07a0c`. This round adds global `back` navigation to implemented Tasks 01–14; all passed JDK 8 self-tests and await renewed user acceptance. These changes have not been committed. Tasks 15–20 are not yet implemented.
 
 ## Original Requirements
 
@@ -61,7 +61,7 @@ Configuration fix recorded on November 10, 2026: IDEA previously loaded only an 
 
 ## Task Index
 
-Tasks 01–12 have passed user acceptance and their source has been committed. Task 11 was committed as `05d8375`, followed by comment changes in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source commit is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then identified the missing package requirements and requested corrections to both Tasks 13 and 14. Both corrected versions have passed self-tests and await renewed user acceptance. No staging, commit or push was performed this round. Tasks 15–20 are not yet implemented.
+Tasks 01–12 passed their original stage acceptance and were committed. Task 11's source commit is `05d8375`, with comment updates in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then requested package corrections in Tasks 13 and 14. Those corrections are included in current commit `8f07a0c`; a commit alone does not establish user acceptance. This November 13 round adds global navigation to Tasks 01–14; all passed self-tests and await renewed user acceptance. No staging, commit or push was performed this round. Tasks 15–20 remain unimplemented.
 
 | Task | Version | Project |
 | --- | --- | --- |
@@ -90,15 +90,27 @@ Task 18's title conflicts with its detailed requirements. The directory retains 
 
 Task 14 adds administrator menu options **9. Resource statistics, 10. TopN popular resources, 11. User statistics, 12. Global reservation status**. Reports are computed from current reservation states, preserve groups for deleted resources, and are unavailable to students. See the [Task 14 run and acceptance instructions](任务14-V4.1-高阶Stream实现数据统计与热度排行/README.md).
 
+## Global Navigation (November 13, 2026)
+
+Every input page in Tasks 01–14 now accepts lowercase `back`, with one startup hint per run. It cancels an unfinished form and returns to its menu; at a role menu it logs out to the home menu, and at home it stays there. Task 1 has no home menu: it returns to the username prompt and still ends after one completed login check. Enter `\back` for literal text `back`; numeric menu options and business rules remain intact. This is a user-requested interaction improvement that preserves the assignment's architecture stages; see the [requirements review](docs/需求核对.md#用户追加的全局返回2026-11-13).
+
+Under JDK `1.8.0_341`, the 14 independent projects passed 449 console sessions and 2482 assertions covering 216 form input points. Existing regression suites for Tasks 10–14 also passed. Hashes of 273 protected business source, application data and script files remained unchanged. No persistence format changed or existing data was overwritten; backups and logs remain in ignored task-local `data/` directories. Each task README records results, launch instructions and acceptance steps. GUI run buttons were not clicked this round; all stages await user verification.
+
+```powershell
+python .\tests\verify-back.py --jdk D:/jdk8
+```
+
+Add `--tasks 14` to test one stage. Tests use isolated demo data without reading or overwriting real accounts. Python is only a test tool; applications still use the JDK and existing scripts. Tasks 15–20 were not implemented early and will inherit this navigation rule when developed.
+
 ## UML Architecture Diagrams
 
-Task 13's MVC class diagram follows **View → Controller → Service → DAO**. The native VPP, PlantUML and previews now reflect the corrected common / enums packages and service name. This preview was exported from Visual Paradigm 16.2; click to view it at full size. It represents Task 13 and does not include Task 14's added statistics DTOs or methods.
+Task 13's MVC class diagram follows **View → Controller → Service → DAO**. The native VPP, PlantUML and previews reflect the common / enums packages, service name and new BackNavigation interaction. This preview was exported from Visual Paradigm 16.2; click to view it at full size. It represents Task 13 and does not include Task 14's added statistics DTOs or methods.
 
 [![Task 13 MVC class diagram: View and Controller](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)
 
 - [All four UML diagrams and architecture evolution notes](任务13-V4.0-MVC架构/README.md#uml-交付物): View / Controller, Service / DAO / singletons / factory, entities and states, and exception inheritance.
 - [Editable Visual Paradigm project (VPP)](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [Main diagram SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML source](任务13-V4.0-MVC架构/docs/uml/architecture.puml).
-- [Task 10 three-layer architecture UML](任务10-V3.1-三层架构重构/README.md): the original stage is preserved for comparison with MVC.
+- [Task 10 three-layer architecture UML](任务10-V3.1-三层架构重构/README.md): the stage's three-layer structure is preserved with navigation updated; earlier diagrams remain in backups and the baseline commit for comparison with MVC.
 
 ## Iteration Workflow
 
@@ -114,7 +126,7 @@ Task 13's MVC class diagram follows **View → Controller → Service → DAO**.
 - The console version is the required baseline. Additional user interfaces in Task 20 are optional for bonus points and must not modify core business code.
 - Tasks 10 and 13 deliver UML class diagrams for the three-layer and MVC architectures, respectively. Task 13 includes PlantUML, SVG / PNG, and a native VPP reopened and checked with Visual Paradigm 16.2, while preserving Task 10's diagrams. Final delivery includes source code, a project report, and a recorded demonstration.
 - Runtime user, resource, reservation, and log files are ignored by Git. Demo data intended for version control belongs in each task's `samples/` directory, with loading instructions.
-- Tasks 01–14 were independently compiled and run with JDK `1.8.0_341`. The corrected Tasks 13 and 14 passed package checks, business regression, state machine, console, 14 paired baseline sessions each, and existing-data compatibility checks. Task 14 also passed all four report regressions. Both corrected versions and IDE GUI buttons await user verification; see their READMEs. Tasks 15–20 are not yet implemented or tested.
+- Tasks 01–14 were independently compiled and run with JDK `1.8.0_341`. The corrected Tasks 13 and 14 passed package checks, business regression, state machine, console, 14 paired baseline sessions each, and existing-data compatibility checks. Task 14 also passed all four report regressions. This round's navigation updates in Tasks 01–14 and IDE GUI buttons await user verification; see their READMEs. Tasks 15–20 are not yet implemented or tested.
 
 ## Grading
 

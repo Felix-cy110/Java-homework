@@ -42,6 +42,7 @@ public class SystemMain {
     /** 加载用户、资源和预约数据，集中处理登录注册与启动错误。 */
     public static void main(String[] args) {
         System.out.println("=== 校园资源预约系统 V3.0 ===");
+        System.out.println("提示：输入 back 返回上一级菜单；最外层保持当前页面。输入 \\back 可作为普通文本 back。");
         String loadingFile = "user.txt";
         try (Scanner scanner = new Scanner(System.in)) {
             List<User> users = FileUtil.loadUsers();
@@ -66,6 +67,10 @@ public class SystemMain {
                         break;
                     }
                     String choice = scanner.nextLine().trim();
+                    // 首页没有上级，返回命令仅重新展示首页。
+                    if ("back".equals(choice)) {
+                        continue;
+                    }
                     if ("0".equals(choice)) {
                         System.out.println("程序已退出。");
                         break;
@@ -95,6 +100,9 @@ public class SystemMain {
                             break;
                         }
                     }
+                } catch (BackNavigation e) {
+                    // 取消登录或注册，尚未调用写入业务，继续首页循环。
+                    continue;
                 } catch (BusinessException e) {
                     String prefix = operation.isEmpty() ? "" : operation + "失败：";
                     displayResult(Result.fail(prefix + e.getMessage()));
@@ -161,12 +169,14 @@ public class SystemMain {
                                            List<CampusResource> resources,
                                            List<ReserveRecord> records) {
         while (true) {
+            boolean choosingMenu = true;
             try {
                 printMenu(user);
                 String choice = readInput(scanner, "请选择：");
                 if (choice == null) {
                     return false;
                 }
+                choosingMenu = false;
                 choice = choice.trim();
                 if ("0".equals(choice)) {
                     System.out.println("已退出登录。");
@@ -209,6 +219,12 @@ public class SystemMain {
                     continue;
                 }
                 throw new BusinessException("无效菜单选项，请按当前角色菜单输入。");
+            } catch (BackNavigation e) {
+                // 菜单返回首页；表单取消只回当前角色菜单，不提交半成品。
+                if (choosingMenu) {
+                    System.out.println("已退出登录。");
+                    return true;
+                }
             } catch (BusinessException e) {
                 displayResult(Result.fail("操作失败：" + e.getMessage()));
             }
@@ -310,7 +326,12 @@ public class SystemMain {
             System.out.println("输入已结束，程序退出。");
             return null;
         }
-        return scanner.nextLine();
+        String value = scanner.nextLine();
+        // 所有字段在解析类型和调用业务前识别返回，包括可空字段。
+        if ("back".equals(value.trim())) {
+            throw new BackNavigation();
+        }
+        return literalInput(value);
     }
 
     /** 读取不可为空的菜单参数，空值转换为统一业务异常。 */
@@ -833,5 +854,20 @@ public class SystemMain {
         if (value == null || value.trim().isEmpty()) {
             throw new EmptyParameterException(fieldName);
         }
+    }
+
+    /** 反斜杠转义保留字，已有账号或字段为 back 时仍可按原值输入。 */
+    private static String literalInput(String value) {
+        int prefix = 0;
+        while (prefix < value.length() && value.charAt(prefix) == '\\') {
+            prefix++;
+        }
+        return prefix > 0 && "back".equals(value.substring(prefix).trim())
+                ? value.substring(1) : value;
+    }
+
+    /** 仅在输入与菜单之间传递返回请求，不代表业务失败，也不进入业务层。 */
+    private static final class BackNavigation extends RuntimeException {
+        private static final long serialVersionUID = 1L;
     }
 }

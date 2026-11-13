@@ -1,6 +1,6 @@
 # 任务10 V3.1 三层架构重构
 
-状态：已提交。用户于 2026-11-10 明确确认任务 10 验收通过并授权开始任务 11；源码提交为 `c708ee8`，UML 后续交付提交为 `a82e646`。本轮仅同步验收记录，未进行 Git 写操作。
+状态：自测通过，待用户验收。2026-11-13 已补充全局 back 返回；原阶段验收历史保留，本轮需用户复验，尚未提交。
 
 前置版本：[任务09 V3.0](../任务09-V3.0-资源预约核心业务开发/README.md)。基线为 `fad293c`，其中任务 9 源码提交为 `b01dfe7`。本项目独立编译、运行，使用自己的数据副本。
 
@@ -68,13 +68,17 @@ UML 分为主图和两张明细图，避免把所有成员挤在一张图中：
 - `02 实体与返回结构`：实体核心字段和方法、Result 泛型返回、预约状态及逻辑外键。
 - `03 业务异常继承`：BusinessException、11 个业务子异常及 JDK 父类。
 
-原生工程基于本任务 30 个 Java 类型及现有三份图源建立，另含 `java.lang.RuntimeException`；共 31 个类型、127 个核心成员、40 条模型关系，三张图分别展示 26、3、12 条连接（有一条跨图复用）。同一类型在多张图中引用同一模型；这里只建模图示核心成员，不宣称包含源码全部成员。原有图源和预览继续保留，后续改动需同步维护两种可编辑格式。
+原生工程现基于本任务 31 个 Java 类型及三份图源，另含 `java.lang.RuntimeException`；共 32 个类型、129 个核心成员、42 条模型关系，三张图分别展示 28、3、12 条连接（有一条跨图复用）。本轮新增 UI 包内的 BackNavigation 与 literalInput 方法；同一类型在多张图中引用同一模型，只建模图示核心成员，不宣称包含源码全部成员。图源、预览及 VPP 已同步，修改前图保留于本轮备份和基线提交。
 
 | 内容 | 可编辑图源 | 矢量图 | 图片 |
 | --- | --- | --- | --- |
 | 三层架构、接口实现、DAO 依赖与集合关联 | [architecture.puml](docs/uml/architecture.puml) | [SVG](docs/uml/architecture.svg) | [PNG](docs/uml/architecture.png) |
 | 实体字段、Result、预约状态及逻辑外键 | [models.puml](docs/uml/models.puml) | [SVG](docs/uml/models.svg) | [PNG](docs/uml/models.png) |
 | BusinessException 与全部子异常 | [exceptions.puml](docs/uml/exceptions.puml) | [SVG](docs/uml/exceptions.svg) | [PNG](docs/uml/exceptions.png) |
+
+原生 VPP 导出预览：[主图](docs/uml/vpp-preview/architecture.png)、[实体](docs/uml/vpp-preview/models.png)、[异常](docs/uml/vpp-preview/exceptions.png)。点击主图可查看原尺寸，或用 SVG / VPP 放大查看成员。
+
+[![任务10 三层架构原生类图](docs/uml/vpp-preview/architecture.png)](docs/uml/vpp-preview/architecture.png)
 
 `+` 为 public、`-` 为 private、`~` 为包内可见。实体完整 getter/setter 见源码；图中显示核心成员，接口上的业务方法由对应 Service 实现。
 
@@ -167,5 +171,35 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\MyProject\Java-homew
 6. 可运行 `test.ps1`，预期输出 `PASS: 103 checks`，测试不改动上述业务数据。
 
 用户验收记录：2026-11-10 用户明确表示“我已经验收好了，现在做任务11”。原自测记录保留，任务 11 以当前已验收源码和数据为基线独立增量开发。
+
+## 全局返回补充与复验（2026-11-13）
+
+本轮基线为当前提交 `8f07a0c`。原交互在填写表单时缺少取消入口，只能继续输入或结束程序；现按用户明确要求跨阶段补充 `back`，实现位于 `ui/console/ConsoleUI.java` 和同包的 `BackNavigation.java`，保留本任务原有结构与业务规则，并补充精简中文注释。这是用户追加的交互完善，两份 DOCX 未禁止返回菜单，不将它写成教师新增要求；上文验收与自测属于历史，本轮状态以本节及页首为准。
+
+注册、登录及当期已有表单的任意输入处输入 `back`，取消本次尚未提交的内容并返回所属菜单；首页输入 `back` 保持首页，原数字菜单和 `0` 保留。角色菜单输入 `back` 退出登录并回到首页。列表和统计展示后自动回到角色菜单。 命令仅识别小写，忽略前后空白；`BACK`、`back123` 仍为普通文本。输入 `\back` 表示字面文本 `back`，连续前导反斜杠仅去掉一层，其他输入保持原样。提示及转义说明仅在启动时显示一次。
+
+| 本轮检查 | 实际结果 |
+| --- | --- |
+| 独立编译与运行 | Oracle JDK `1.8.0_341`，`D:\jdk8`，`javac -encoding UTF-8 -Xlint:all` 通过 |
+| 导航与取消 | 46 次独立控制台会话、267 项断言通过，覆盖 26 个表单输入点 |
+| 提示、转义及原行为 | 单次启动提示、大小写/转义、取消后继续操作、输入结束等通过；有持久化的阶段同时验证取消不写文件及重启可读 |
+| 隔离测试记录 | `data/back-test-dcd724bd835b455aa48a7797801b7d75/result.json`；同目录保留编译与会话日志，不纳入 Git |
+| 数据与业务保护 | 全仓库 273 个受保护业务源码、正式数据和脚本哈希一致；任务 15–20 未改动 |
+
+在仓库根目录可复跑本阶段导航测试（Python 只用于测试，应用运行只需要 JDK）：
+
+```powershell
+python .\tests\verify-back.py --jdk D:/jdk8 --tasks 10
+```
+
+删除 `--tasks 10` 可测试全部任务 1–14；合计已通过 449 次控制台会话、2482 项断言，覆盖 216 个表单输入点。测试只使用新建的隔离演示数据。
+
+另在本任务目录执行 `.\test.ps1 -JdkHome 'D:\jdk8'`，退出码为 0；业务回归 103 项通过。日志为 `../任务14-V4.1-高阶Stream实现数据统计与热度排行/data/back-navigation-e3904a3a2c9b4ba6b6b7c128f17eb8c6/regression-10.log`（本机忽略）。
+
+修改前源码、说明、UML 及已有正式数据备份于 `data/back-navigation-e3904a3a2c9b4ba6b6b7c128f17eb8c6/`，该目录被 Git 忽略。各任务原有账号、资源及预约文件保持原样；本轮不改变持久化格式，也未开始新阶段，因此不重新覆盖或迁移数据，无冲突及未迁移项。
+
+UML 已同步输入转义方法、返回信号及其交互层依赖，包含 32 个类型、129 个核心成员、42 个去重关系。PlantUML、SVG/PNG、原生 VPP 及导出预览均已更新；编译后反射核对签名，使用指定的 Visual Paradigm 16.2 保存后在独立进程重开核对 3 张图，移除临时构建插件后导出并目视检查通过。记录位于 `data/uml-back-20261113/`；修改前图见上述备份及基线提交。
+
+用户复验：启动后在首页输入 `back`，应仍显示首页；进入注册，在密码处输入 `back`，应回首页且不新增账号；使用原账号登录。在新增资源或预约等当前已有表单中途输入 `back`，应回角色菜单且没有写入；角色菜单再输入 `back`，应回首页。最后输入 `0` 退出，全程启动提示只出现一次。 如需验证字面值，在文本字段输入 `\back` 应作为普通 `back` 处理；格式受限字段仍按原规则校验。沿用上文原运行方式，IDE 图形运行按钮本轮未点击，留用户复测。当前为“自测通过，待用户验收”，未暂存、提交或推送。
 
 [返回任务索引](../README.md)

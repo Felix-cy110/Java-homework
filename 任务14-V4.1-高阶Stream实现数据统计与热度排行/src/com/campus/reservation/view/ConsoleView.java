@@ -28,12 +28,14 @@ abstract class ConsoleView {
     /** 执行角色菜单；退出登录返回 true，输入结束返回 false。 */
     public boolean start(User user) {
         while (true) {
+            boolean choosingMenu = true;
             try {
                 printMenu();
                 String choice = readInput("请选择：");
                 if (choice == null) {
                     return false;
                 }
+                choosingMenu = false;
                 choice = choice.trim();
                 if ("0".equals(choice)) {
                     System.out.println("已退出登录。");
@@ -47,6 +49,12 @@ abstract class ConsoleView {
                     displayResult(resourceController.queryResources(user, keyword));
                 } else if (!handleChoice(choice, user)) {
                     throw new BusinessException("无效菜单选项，请按当前角色菜单输入。");
+                }
+            } catch (BackNavigation e) {
+                // 菜单返回首页；表单取消只回当前角色菜单，不提交半成品。
+                if (choosingMenu) {
+                    System.out.println("已退出登录。");
+                    return true;
                 }
             } catch (BusinessException e) {
                 displayResult(Result.fail("操作失败：" + e.getMessage()));
@@ -87,7 +95,12 @@ abstract class ConsoleView {
             System.out.println("输入已结束，程序退出。");
             return null;
         }
-        return scanner.nextLine();
+        String value = scanner.nextLine();
+        // 所有字段在解析类型和调用业务前识别返回，包括可空字段。
+        if ("back".equals(value.trim())) {
+            throw new BackNavigation();
+        }
+        return literalInput(value);
     }
 
     /** 校验输入格式；字段的业务约束仍交给控制器与服务。 */
@@ -109,5 +122,15 @@ abstract class ConsoleView {
         } catch (DateTimeParseException e) {
             throw new BusinessException(fieldName + "格式错误，请使用 yyyy-MM-ddTHH:mm:ss 或 yyyy-MM-ddTHH:mm。");
         }
+    }
+
+    /** 反斜杠转义保留字，已有账号或字段为 back 时仍可按原值输入。 */
+    protected static String literalInput(String value) {
+        int prefix = 0;
+        while (prefix < value.length() && value.charAt(prefix) == '\\') {
+            prefix++;
+        }
+        return prefix > 0 && "back".equals(value.substring(prefix).trim())
+                ? value.substring(1) : value;
     }
 }

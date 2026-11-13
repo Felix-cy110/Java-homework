@@ -28,6 +28,10 @@ package "view · 输入输出与展示" #E9F4FF {
     # readInput(prompt : String) : String
     # readRequiredInput(prompt : String) : String
     # parseDateTime(value : String, fieldName : String) : LocalDateTime
+    # {static} literalInput(value : String) : String
+  }
+  class BackNavigation <<package-private>> {
+    - {static} serialVersionUID : long
   }
   class MainView {
     - userController : UserController
@@ -104,6 +108,10 @@ package "common · 返回结构与异常基类" #FDEEEE {
   class "Result<T>" as Result
   class BusinessException
 }
+class RuntimeException <<JDK>>
+RuntimeException <|-- BackNavigation
+ConsoleView ..> BackNavigation : 输入返回，仅在 View 捕获
+MainView ..> BackNavigation : 取消登录或注册
 SystemMain ..> MainView : 装配并启动
 SystemMain ..> DaoFactory : 加载三个 DAO
 ConsoleView <|-- MainView

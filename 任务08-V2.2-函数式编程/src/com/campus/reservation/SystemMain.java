@@ -35,6 +35,7 @@ public class SystemMain {
     /** 加载历史数据并初始化缺失的管理员，集中处理登录注册和系统错误。 */
     public static void main(String[] args) {
         System.out.println("=== 校园资源预约系统 V2.2 ===");
+        System.out.println("提示：输入 back 返回上一级菜单；最外层保持当前页面。输入 \\back 可作为普通文本 back。");
         String loadingFile = "user.txt";
         // 所有菜单共用输入资源，程序结束后自动关闭。
         try (Scanner scanner = new Scanner(System.in)) {
@@ -62,6 +63,10 @@ public class SystemMain {
                         break;
                     }
                     String choice = scanner.nextLine().trim();
+                    // 首页没有上级，返回命令仅重新展示首页。
+                    if ("back".equals(choice)) {
+                        continue;
+                    }
                     if ("0".equals(choice)) {
                         System.out.println("程序已退出。");
                         break;
@@ -79,6 +84,11 @@ public class SystemMain {
                         break;
                     }
                     String username = scanner.nextLine();
+                    // 未提交的输入直接丢弃，回到登录注册首页。
+                    if ("back".equals(username.trim())) {
+                        continue;
+                    }
+                    username = literalInput(username);
                     validateUsername(username);
 
                     System.out.print("请输入密码：");
@@ -88,6 +98,11 @@ public class SystemMain {
                     }
                     // 保留整行输入中的空格，业务方法只校验，不修改原值。
                     String password = scanner.nextLine();
+                    // 未提交的输入直接丢弃，回到登录注册首页。
+                    if ("back".equals(password.trim())) {
+                        continue;
+                    }
+                    password = literalInput(password);
                     if (registering) {
                         displayResult(registerUser(users, username, password));
                     } else {
@@ -168,6 +183,7 @@ public class SystemMain {
     /** 登录后按角色显示菜单；返回 false 表示 EOF，true 表示正常退出登录。 */
     private static boolean runResourceMenu(Scanner scanner, User user, List<CampusResource> resources) {
         while (true) {
+            boolean choosingMenu = true;
             try {
                 System.out.println();
                 if ("admin".equals(user.getRole())) {
@@ -179,6 +195,7 @@ public class SystemMain {
                 if (choice == null) {
                     return false;
                 }
+                choosingMenu = false;
                 choice = choice.trim();
                 if ("0".equals(choice)) {
                     System.out.println("已退出登录。");
@@ -239,6 +256,12 @@ public class SystemMain {
                     result = updateResource(user, resources, id, name, type, location, status);
                 }
                 displayResult(result);
+            } catch (BackNavigation e) {
+                // 菜单返回首页；表单取消只回当前角色菜单，不提交半成品。
+                if (choosingMenu) {
+                    System.out.println("已退出登录。");
+                    return true;
+                }
             } catch (BusinessException e) {
                 displayResult(Result.fail("资源操作失败：" + e.getMessage()));
             }
@@ -252,7 +275,12 @@ public class SystemMain {
             System.out.println("输入已结束，程序退出。");
             return null;
         }
-        return scanner.nextLine();
+        String value = scanner.nextLine();
+        // 所有字段在解析类型和调用业务前识别返回，包括可空字段。
+        if ("back".equals(value.trim())) {
+            throw new BackNavigation();
+        }
+        return literalInput(value);
     }
 
     /** 新增资源并返回结果；文件保存成功后才更新内存，失败不遗留资源。 */
@@ -483,5 +511,20 @@ public class SystemMain {
         if (value == null || value.trim().isEmpty()) {
             throw new EmptyParameterException(fieldName);
         }
+    }
+
+    /** 反斜杠转义保留字，已有账号或字段为 back 时仍可按原值输入。 */
+    private static String literalInput(String value) {
+        int prefix = 0;
+        while (prefix < value.length() && value.charAt(prefix) == '\\') {
+            prefix++;
+        }
+        return prefix > 0 && "back".equals(value.substring(prefix).trim())
+                ? value.substring(1) : value;
+    }
+
+    /** 仅在输入与菜单之间传递返回请求，不代表业务失败，也不进入业务层。 */
+    private static final class BackNavigation extends RuntimeException {
+        private static final long serialVersionUID = 1L;
     }
 }
