@@ -8,7 +8,7 @@ A campus resource reservation system developed for a comprehensive software cons
 
 This page is available in Chinese and English. Task documentation and original course materials remain in Chinese.
 
-Current status: Tasks 01–16 contain source code; Tasks 17–20 remain unimplemented. The user accepted Task 15 (source `b247a21`) on November 16, 2026. Task 16 incrementally inherits that baseline and is **self-tested, awaiting user acceptance, uncommitted**. Its Mac IDEA launch is verified; Service / ServiceImpl naming and back navigation are retained. Historical VPP work for Tasks 10 and 13 remains outstanding.
+Current status: Tasks 01–16 contain source code; Tasks 17–20 remain unimplemented. The user accepted Task 15 (source `b247a21`) on November 16, 2026. Task 16 incrementally inherits that baseline and is **user-accepted, with source committed as `a5583d5`**. The acceptance documentation update remains uncommitted. Its Mac IDEA launch is verified; Service / ServiceImpl naming and back navigation are retained. Historical VPP work for Tasks 10 and 13 remains outstanding.
 
 ## Service Naming Update — November 16, 2026
 
@@ -75,7 +75,7 @@ Configuration fix recorded on November 10, 2026: IDEA previously loaded only an 
 
 ## Task Index
 
-Tasks 01–12 passed their original stage acceptance and were committed. Task 11's source commit is `05d8375`, with comment updates in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then requested package corrections in Tasks 13 and 14. Those corrections were included in commit `8f07a0c`; a commit alone does not establish user acceptance. The November 13 navigation work covered Tasks 01–14, passed self-tests and awaited renewed user acceptance at the time; it is now included in later baselines. On November 16, 2026, the user explicitly accepted Task 14 (`402085d`). Task 15 was subsequently committed as `b247a21` and explicitly accepted. Task 16 is self-tested, awaiting user acceptance and uncommitted. Tasks 17–20 remain unimplemented.
+Tasks 01–12 passed their original stage acceptance and were committed. Task 11's source commit is `05d8375`, with comment updates in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then requested package corrections in Tasks 13 and 14. Those corrections were included in commit `8f07a0c`; a commit alone does not establish user acceptance. The November 13 navigation work covered Tasks 01–14, passed self-tests and awaited renewed user acceptance at the time; it is now included in later baselines. On November 16, 2026, the user explicitly accepted Task 14 (`402085d`). Task 15 was subsequently committed as `b247a21` and explicitly accepted. Task 16 source is committed as `a5583d5`, and the user explicitly accepted it on November 16, 2026. The acceptance documentation update remains uncommitted. Tasks 17–20 remain unimplemented.
 
 | Task | Version | Project |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ Task 16 inherits accepted Task 15 source `b247a21` and adds `common.util.ObjectR
 
 64 utility checks, 9 integration checks, existing business/log/statistics regressions, 17 paired baseline sessions and 47 navigation sessions passed. Standalone delivery and an actual Mac IDEA launch passed. One existing account was backed up and migrated; source resource, reservation and historical log counts are zero. Two isolated JVMs verified login, queries and restart. Task 15 data and the user's existing Task 6 source change are preserved.
 
-Choose **任务16 - V4.3** in IDEA, or run `sh run.sh` / `python3 tests/run-tests.py` inside Task 16. Verification used JDK 17.0.18 with Java 8-compatible compilation, not a JDK 8 runtime or Windows scripts. Status: **self-tested, awaiting user acceptance**. No staging, commit, push or Task 17 work was performed.
+Choose **任务16 - V4.3** in IDEA, or run `sh run.sh` / `python3 tests/run-tests.py` inside Task 16. Verification used JDK 17.0.18 with Java 8-compatible compilation, not a JDK 8 runtime or Windows scripts. Status: **user-accepted on November 16, 2026**, with source committed as `a5583d5`. This update only records acceptance; Java tests were not rerun. No staging, commit or push was performed in this update, and Task 17 has not started.
 
 ## Global Navigation (November 13, 2026)
 
