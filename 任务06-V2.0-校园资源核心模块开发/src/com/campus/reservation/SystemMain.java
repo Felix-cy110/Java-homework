@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 /** V2.0 控制台入口：继承用户业务，按登录角色处理资源菜单与业务校验。 */
-public class SystemMain {
+public class    SystemMain {
     // 按用户要求提供课程默认管理员，仅在账号不存在时用于初始化。
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String DEFAULT_ADMIN_PASSWORD = "123456";
