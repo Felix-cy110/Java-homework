@@ -6,9 +6,9 @@ import com.campus.reservation.entity.ReserveRecord;
 import com.campus.reservation.entity.ReserveStatus;
 import com.campus.reservation.entity.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.ResourceService;
-import com.campus.reservation.service.ReserveService;
-import com.campus.reservation.service.UserService;
+import com.campus.reservation.service.ResourceServiceImpl;
+import com.campus.reservation.service.ReserveServiceImpl;
+import com.campus.reservation.service.UserServiceImpl;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,9 +30,9 @@ public class RegressionTest {
         UserDao ud = new UserDao();
         ResourceDao rd = new ResourceDao();
         ReserveRecordDao bd = new ReserveRecordDao();
-        UserService users = new UserService(ud);
-        ResourceService resources = new ResourceService(rd, bd);
-        ReserveService reservations = new ReserveService(rd, bd);
+        UserServiceImpl users = new UserServiceImpl(ud);
+        ResourceServiceImpl resources = new ResourceServiceImpl(rd, bd);
+        ReserveServiceImpl reservations = new ReserveServiceImpl(rd, bd);
         ok(users.initializeDefaultAdministrator(), "初始化管理员");
         ok(users.initializeDefaultAdministrator(), "再次初始化");
         check(ud.findAll().size() == 1, "不重复创建管理员");
@@ -46,7 +46,7 @@ public class RegressionTest {
         fail(users.loginUser("alice", "wrong"), "错误密码");
         fail(users.loginUser("missing", "123456"), "账号不存在");
         fail(users.loginUser("alice", ""), "空密码");
-        ok(new UserService(new UserDao()).loginUser("alice", "123456"), "重新加载后登录");
+        ok(new UserServiceImpl(new UserDao()).loginUser("alice", "123456"), "重新加载后登录");
 
         CampusResource room = ok(resources.addResource(admin, "Alpha教室", "教室", "测试楼"), "新增资源");
         String id = room.getId();
@@ -129,7 +129,7 @@ public class RegressionTest {
         // 注入失败 DAO，验证第二个文件写入失败时资源文件和缓存均回滚。
         ReserveRecord ioRecord = ok(reservations.submitReservation(alice, tid, start, end, ""), "失败测试申请");
         FailingReserveDao failing = new FailingReserveDao();
-        ReserveService retry = new ReserveService(rd, failing);
+        ReserveServiceImpl retry = new ReserveServiceImpl(rd, failing);
         failing.failWrites = true;
         fail(retry.auditReservation(admin, ioRecord.getRecordId(), ReserveStatus.PASS, ""), "审核写入失败");
         check("AVAILABLE".equals(rd.findById(tid).get().getStatus()), "失败后缓存回滚");

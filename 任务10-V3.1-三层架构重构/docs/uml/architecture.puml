@@ -17,9 +17,9 @@ class SystemMain #EDF2F7 {
 }
 package "ui.console · 交互展示" #E9F4FF {
   class ConsoleUI {
-    - userService : UserOperations
-    - resourceService : ResourceOperations
-    - reserveService : ReserveOperations
+    - userService : UserService
+    - resourceService : ResourceService
+    - reserveService : ReserveService
     + run() : int
     + {static} printBanner() : void
     + {static} showStartupError(message : String) : void
@@ -35,20 +35,20 @@ class RuntimeException <<JDK>>
 RuntimeException <|-- BackNavigation
 ConsoleUI ..> BackNavigation : 输入返回，仅在 UI 捕获
 package "service · 业务校验与流程" #EFF9EE {
-  interface UserOperations {
+  interface UserService {
     + initializeDefaultAdministrator() : Result<Void>
     + checkUsername(username : String) : Result<Void>
     + registerUser(username : String, password : String) : Result<User>
     + loginUser(username : String, password : String) : Result<User>
     + findUserByUsername(username : String) : Result<User>
   }
-  interface ResourceOperations {
+  interface ResourceService {
     + addResource(user : User, name : String, type : String, location : String) : Result<CampusResource>
     + queryResources(user : User, keyword : String) : Result<List<CampusResource>>
     + updateResource(user : User, id : String, name : String, type : String, location : String, status : String) : Result<CampusResource>
     + deleteResource(user : User, id : String) : Result<Void>
   }
-  interface ReserveOperations {
+  interface ReserveService {
     + submitReservation(user : User, resourceId : String, start : LocalDateTime, end : LocalDateTime, remark : String) : Result<ReserveRecord>
     + queryMyReservations(user : User) : Result<List<ReserveRecord>>
     + queryAllReservations(user : User) : Result<List<ReserveRecord>>
@@ -56,21 +56,21 @@ package "service · 业务校验与流程" #EFF9EE {
     + auditReservation(user : User, recordId : String, decision : ReserveStatus, remark : String) : Result<ReserveRecord>
     + cancelReservation(user : User, recordId : String) : Result<ReserveRecord>
   }
-  class UserService {
+  class UserServiceImpl {
     - {static} DEFAULT_ADMIN_USERNAME : String
     - {static} DEFAULT_ADMIN_PASSWORD : String
     - userDao : UserDao
-    + UserService(userDao : UserDao)
+    + UserServiceImpl(userDao : UserDao)
   }
-  class ResourceService {
+  class ResourceServiceImpl {
     - resourceDao : ResourceDao
     - reserveDao : ReserveRecordDao
-    + ResourceService(resourceDao : ResourceDao, reserveDao : ReserveRecordDao)
+    + ResourceServiceImpl(resourceDao : ResourceDao, reserveDao : ReserveRecordDao)
   }
-  class ReserveService {
+  class ReserveServiceImpl {
     - resourceDao : ResourceDao
     - reserveDao : ReserveRecordDao
-    + ReserveService(resourceDao : ResourceDao, reserveDao : ReserveRecordDao)
+    + ReserveServiceImpl(resourceDao : ResourceDao, reserveDao : ReserveRecordDao)
     - findReserveById(recordId : String) : Result<ReserveRecord>
   }
   class BusinessRules <<package-private>> {
@@ -142,20 +142,20 @@ note right of SystemMain
   装配入口创建 DAO、Service、UI 并注入共享实例。
   不执行业务；为减少交叉线，省略其余创建依赖。
 end note
-ConsoleUI --> UserOperations
-ConsoleUI --> ResourceOperations
-ConsoleUI --> ReserveOperations
-UserOperations <|.. UserService
-ResourceOperations <|.. ResourceService
-ReserveOperations <|.. ReserveService
-UserService --> UserDao
-ResourceService --> ResourceDao
-ResourceService --> ReserveRecordDao
-ReserveService --> ResourceDao
-ReserveService --> ReserveRecordDao
-UserService ..> BusinessRules
-ResourceService ..> BusinessRules
-ReserveService ..> BusinessRules
+ConsoleUI --> UserService
+ConsoleUI --> ResourceService
+ConsoleUI --> ReserveService
+UserService <|.. UserServiceImpl
+ResourceService <|.. ResourceServiceImpl
+ReserveService <|.. ReserveServiceImpl
+UserServiceImpl --> UserDao
+ResourceServiceImpl --> ResourceDao
+ResourceServiceImpl --> ReserveRecordDao
+ReserveServiceImpl --> ResourceDao
+ReserveServiceImpl --> ReserveRecordDao
+UserServiceImpl ..> BusinessRules
+ResourceServiceImpl ..> BusinessRules
+ReserveServiceImpl ..> BusinessRules
 BusinessRules ..> ResourceDao : 主键查询
 BusinessRules ..> BusinessException : 抛出
 ConsoleUI ..> BusinessException : 输入错误提示
@@ -166,7 +166,7 @@ UserDao "1" o-- "0..*" User : items
 ResourceDao "1" o-- "0..*" CampusResource : items
 ReserveRecordDao "1" o-- "0..*" ReserveRecord : items
 ReserveRecord --> ReserveStatus : status
-ReserveOperations ..> Result : 返回
+ReserveService ..> Result : 返回
 
 note bottom of BusinessRules
   服务实现接口上全部方法；此图只列核心成员。

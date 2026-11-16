@@ -3,9 +3,9 @@ package com.campus.reservation;
 import com.campus.reservation.dao.UserDao;
 import com.campus.reservation.dao.ResourceDao;
 import com.campus.reservation.dao.ReserveRecordDao;
-import com.campus.reservation.service.UserService;
-import com.campus.reservation.service.ResourceService;
-import com.campus.reservation.service.ReserveService;
+import com.campus.reservation.service.UserServiceImpl;
+import com.campus.reservation.service.ResourceServiceImpl;
+import com.campus.reservation.service.ReserveServiceImpl;
 import com.campus.reservation.ui.console.ConsoleUI;
 import java.io.IOException;
 
@@ -22,9 +22,9 @@ public class SystemMain {
             ResourceDao resourceDao = new ResourceDao();
             loadingFile = "reserve.txt";
             ReserveRecordDao reserveDao = new ReserveRecordDao();
-            ConsoleUI ui = new ConsoleUI(new UserService(userDao),
-                    new ResourceService(resourceDao, reserveDao),
-                    new ReserveService(resourceDao, reserveDao));
+            ConsoleUI ui = new ConsoleUI(new UserServiceImpl(userDao),
+                    new ResourceServiceImpl(resourceDao, reserveDao),
+                    new ReserveServiceImpl(resourceDao, reserveDao));
             exitCode = ui.run();
         } catch (IOException e) {
             ConsoleUI.showStartupError("系统错误：数据加载失败，请检查 " + loadingFile

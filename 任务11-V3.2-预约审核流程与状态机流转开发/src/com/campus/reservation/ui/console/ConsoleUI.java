@@ -6,9 +6,9 @@ import com.campus.reservation.entity.Result;
 import com.campus.reservation.entity.User;
 import com.campus.reservation.exception.BusinessException;
 import com.campus.reservation.exception.EmptyParameterException;
-import com.campus.reservation.service.UserOperations;
-import com.campus.reservation.service.ResourceOperations;
-import com.campus.reservation.service.ReserveOperations;
+import com.campus.reservation.service.UserService;
+import com.campus.reservation.service.ResourceService;
+import com.campus.reservation.service.ReserveService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -17,13 +17,13 @@ import java.util.Scanner;
 
 /** 控制台视图：收集和转换输入、路由菜单、展示 Result，不访问 DAO 或文件。 */
 public class ConsoleUI {
-    private final UserOperations userService;
-    private final ResourceOperations resourceService;
-    private final ReserveOperations reserveService;
+    private final UserService userService;
+    private final ResourceService resourceService;
+    private final ReserveService reserveService;
 
     /** 注入三个独立业务接口，UI 不创建或依赖其具体实现。 */
-    public ConsoleUI(UserOperations userService, ResourceOperations resourceService,
-                     ReserveOperations reserveService) {
+    public ConsoleUI(UserService userService, ResourceService resourceService,
+                     ReserveService reserveService) {
         this.userService = userService;
         this.resourceService = resourceService;
         this.reserveService = reserveService;

@@ -5,7 +5,7 @@ import com.campus.reservation.entity.ReserveRecord;
 import com.campus.reservation.entity.ReserveStatus;
 import com.campus.reservation.entity.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.ReserveService;
+import com.campus.reservation.service.ReserveServiceImpl;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,7 +30,7 @@ public class StateMachineTest {
         User bob = new User("bob", "demo", "student", PAST);
         ResourceDao resources = new ResourceDao();
         ReserveRecordDao records = new ReserveRecordDao();
-        ReserveService service = new ReserveService(resources, records);
+        ReserveServiceImpl service = new ReserveServiceImpl(resources, records);
         ReserveStatus[] states = ReserveStatus.values();
         boolean[][] legal = {
             {false, true, true, true},
@@ -109,7 +109,7 @@ public class StateMachineTest {
         // 写入异常不能提前发布审核时间、原因或状态，取消失败也保留元数据。
         reset(resources, records, ReserveStatus.PENDING);
         FailingReserveDao failing = new FailingReserveDao();
-        ReserveService retry = new ReserveService(resources, failing);
+        ReserveServiceImpl retry = new ReserveServiceImpl(resources, failing);
         failing.failWrites = true;
         fail(retry.auditReservation(admin, "record", ReserveStatus.REJECT, "不应保存"), "驳回写入失败");
         check(failing.findByRecordId("record").get().getAuditTime() == null

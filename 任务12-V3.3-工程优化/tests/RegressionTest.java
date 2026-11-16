@@ -6,9 +6,9 @@ import com.campus.reservation.entity.ReserveRecord;
 import com.campus.reservation.entity.ReserveStatus;
 import com.campus.reservation.entity.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.ResourceService;
-import com.campus.reservation.service.ReserveService;
-import com.campus.reservation.service.UserService;
+import com.campus.reservation.service.ResourceServiceImpl;
+import com.campus.reservation.service.ReserveServiceImpl;
+import com.campus.reservation.service.UserServiceImpl;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,9 +30,9 @@ public class RegressionTest {
         UserDao ud = UserDao.getInstance();
         ResourceDao rd = ResourceDao.getInstance();
         ReserveRecordDao bd = ReserveRecordDao.getInstance();
-        UserService users = UserService.getInstance();
-        ResourceService resources = ResourceService.getInstance();
-        ReserveService reservations = ReserveService.getInstance();
+        UserServiceImpl users = UserServiceImpl.getInstance();
+        ResourceServiceImpl resources = ResourceServiceImpl.getInstance();
+        ReserveServiceImpl reservations = ReserveServiceImpl.getInstance();
         ok(users.initializeDefaultAdministrator(), "初始化管理员");
         ok(users.initializeDefaultAdministrator(), "再次初始化");
         check(ud.findAll().size() == 1, "不重复创建管理员");
@@ -46,7 +46,7 @@ public class RegressionTest {
         fail(users.loginUser("alice", "wrong"), "错误密码");
         fail(users.loginUser("missing", "123456"), "账号不存在");
         fail(users.loginUser("alice", ""), "空密码");
-        ok(UserService.getInstance().loginUser("alice", "123456"), "通过共享服务再次登录");
+        ok(UserServiceImpl.getInstance().loginUser("alice", "123456"), "通过共享服务再次登录");
 
         CampusResource room = ok(resources.addResource(admin, "Alpha教室", "教室", "测试楼"), "新增资源");
         String id = room.getId();

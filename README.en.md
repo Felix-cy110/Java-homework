@@ -8,7 +8,13 @@ A campus resource reservation system developed for a comprehensive software cons
 
 This page is available in Chinese and English. Task documentation and original course materials remain in Chinese.
 
-Current status: Historical stage acceptance records are preserved. The corrected package structures for Tasks 13 and 14 are included in current commit `8f07a0c`. This round adds global `back` navigation to implemented Tasks 01–14; all passed JDK 8 self-tests and await renewed user acceptance. These changes have not been committed. Tasks 15–20 are not yet implemented.
+Current status: Tasks 01–14 contain source code; Tasks 15–20 remain unimplemented. The `back` changes are included in baseline `280a60a`. On November 16, 2026, Tasks 10–14 were renamed to paired `Service` interfaces and `ServiceImpl` implementations as requested. Independent compilation, business regressions and navigation tests passed on JDK 17; user acceptance is pending and these new changes are uncommitted. UML sources and rendered previews are updated for Tasks 10 and 13, but native VPP updates and reopening in the specified VP 16.2 environment remain outstanding.
+
+## Service Naming Update — November 16, 2026
+
+The user's cross-stage request applies only to Tasks 10–14. Interfaces now use `UserService`, `ResourceService`, and `ReserveService` (Tasks 10–12) or `ReserveRecordService` (Tasks 13–14); implementations append `Impl`. All remain in the existing service package. BusinessRules, business behavior, dependency injection / eager singletons, DAO code and persistence formats are unchanged. Earlier dated records describe previous work, not acceptance of this rename.
+
+Five projects compiled independently with JDK 17.0.18 and `--release 8`; applicable Java, CLI, MVC and statistics tests passed. Navigation tests passed 231 sessions and 1,342 assertions. This does not claim JDK 8 runtime, Windows-script or IDE verification. Formal user/resource/reservation files are absent from these five task directories in this workspace; no business data was migrated or replaced. Tasks 10 and 13 still need native VPP renaming and VP 16.2 verification. Details and reproducible commands are in each task README.
 
 ## Original Requirements
 
@@ -104,9 +110,9 @@ Add `--tasks 14` to test one stage. Tests use isolated demo data without reading
 
 ## UML Architecture Diagrams
 
-Task 13's MVC class diagram follows **View → Controller → Service → DAO**. The native VPP, PlantUML and previews reflect the common / enums packages, service name and new BackNavigation interaction. This preview was exported from Visual Paradigm 16.2; click to view it at full size. It represents Task 13 and does not include Task 14's added statistics DTOs or methods.
+Task 13's MVC diagram follows **View → Controller → Service → DAO**. The PlantUML source and directly rendered SVG/PNG now use the paired Service / ServiceImpl names. This is a PlantUML preview, not a new Visual Paradigm export. The native VPP and files under vpp-preview remain historical pre-rename versions, pending an update and reopening in VP 16.2. The diagram represents Task 13, without Task 14's statistics additions.
 
-[![Task 13 MVC class diagram: View and Controller](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)
+[![Task 13 MVC class diagram: View and Controller](任务13-V4.0-MVC架构/docs/uml/architecture.png)](任务13-V4.0-MVC架构/docs/uml/architecture.png)
 
 - [All four UML diagrams and architecture evolution notes](任务13-V4.0-MVC架构/README.md#uml-交付物): View / Controller, Service / DAO / singletons / factory, entities and states, and exception inheritance.
 - [Editable Visual Paradigm project (VPP)](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [Main diagram SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML source](任务13-V4.0-MVC架构/docs/uml/architecture.puml).

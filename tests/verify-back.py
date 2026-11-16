@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 import argparse
 import json
+import os
 import subprocess
 import uuid
 
@@ -17,9 +18,11 @@ def verify(number, jdk):
     work = task / "data" / ("back-test-" + uuid.uuid4().hex)
     classes = work / "classes"
     classes.mkdir(parents=True)
-    java = str(jdk / "bin/java.exe")
+    # Windows 和 macOS/Linux 使用各自的 JDK 可执行文件名。
+    suffix = ".exe" if os.name == "nt" else ""
+    java = str(jdk / ("bin/java" + suffix))
     compile_result = subprocess.run(
-        [str(jdk / "bin/javac.exe"), "-encoding", "UTF-8", "-Xlint:all",
+        [str(jdk / ("bin/javac" + suffix)), "-encoding", "UTF-8", "-Xlint:all",
          "-classpath", str(classes), "-d", str(classes)]
         + [str(p) for p in (task / "src").rglob("*.java")],
         capture_output=True, encoding="utf-8", timeout=120)

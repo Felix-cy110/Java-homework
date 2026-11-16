@@ -20,12 +20,12 @@ public class StatisticsTest {
 
     /** 固定样本验证手工期望值，再通过原业务操作验证实时报表。 */
     public static void main(String[] args) throws Exception {
-        UserService users = UserService.getInstance();
+        UserServiceImpl users = UserServiceImpl.getInstance();
         require(users.initializeDefaultAdministrator().isSuccess(), "初始化管理员");
         User admin = users.loginUser("admin", "123456").getData();
         User alice = users.registerUser("stat_alice", "123456").getData();
         User bob = users.registerUser("stat_bob", "123456").getData();
-        ReserveRecordService service = ReserveRecordService.getInstance();
+        ReserveRecordServiceImpl service = ReserveRecordServiceImpl.getInstance();
         ReserveController controller = new ReserveController();
         ResourceDao resources = DaoFactory.getResourceDao();
         ReserveRecordDao records = DaoFactory.getReserveRecordDao();
@@ -122,7 +122,7 @@ public class StatisticsTest {
         ResourceStatDTO cancelled = controller.queryResourceStatistics(admin).getData().get(0);
         require(cancelled.getCancelCount() == 1 && cancelled.getPassCount() == 0 && cancelled.getPassRate() == 0,
                 "通过后取消按当前状态计数");
-        require(ResourceService.getInstance().deleteResource(admin, "live").isSuccess(), "原业务删除已释放资源");
+        require(ResourceServiceImpl.getInstance().deleteResource(admin, "live").isSuccess(), "原业务删除已释放资源");
         require("资源已删除".equals(controller.queryResourceStatistics(admin).getData().get(0).getResourceName()),
                 "真实删除后报表回退名称");
         require(controller.queryUserStatistics(admin).getData().get(0).getTotalApplyCount() == 1, "实时用户报表");

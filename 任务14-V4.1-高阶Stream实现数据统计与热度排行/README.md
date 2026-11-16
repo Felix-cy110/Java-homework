@@ -1,6 +1,6 @@
 # 任务14 V4.1 高阶Stream实现数据统计与热度排行
 
-状态：自测通过，待用户验收。2026-11-13 已补充全局 back 返回；原阶段验收历史保留，本轮需用户复验，尚未提交。
+状态：本轮 Service 命名调整自测通过，待用户验收。 2026-11-16 基于 `280a60a` 修改，未提交；此前验收记录保留，不代表本轮已验收。
 
 前置版本：[任务13 V4.0](../任务13-V4.0-MVC架构/README.md)。初版继承用户验收的任务 13（源码 `028a216`、README `ba1a743`）；用户随后要求两阶段同时按原文重做，本轮以修正后的任务 13 工作区为基线同步调整。两阶段修正版均须重新验收，无新的提交号。本项目可独立编译、运行。
 
@@ -27,12 +27,12 @@
 
 | 必做要求 | 实现位置 | 验证方法与当前结果 |
 | --- | --- | --- |
-| 继承修正后的完整 MVC 包结构 | `enums`、`common`、`service/ReserveRecordService` 等 | 必需类、包声明、旧路径清除、枚举实际使用及 MVC 边界检查通过 |
+| 继承修正后的完整 MVC 包结构 | `enums`、`common`、`service/ReserveRecordServiceImpl` 等 | 必需类、包声明、旧路径清除、枚举实际使用及 MVC 边界检查通过 |
 | 资源统计 DTO，含全部字段、构造器、getter/setter/toString | `entity/ResourceStatDTO` | 已实现；字段、默认比率、DTO 与业务数据隔离通过 |
-| 按资源分组、全部状态计入总数、正确通过率 | `service/ReserveRecordService` | 多资源、多状态、零通过、空数据、删除资源通过 |
-| PASS 降序 TopN，使用 sorted 和 limit | `service/ReserveRecordService` | 同热度、超过总数、非法条数通过 |
-| 按申请人分组，统计总提交、通过、驳回 | `service/ReserveRecordService` | 多用户混合记录及各报表总数核对通过 |
-| 四种状态全局汇总，缺失状态显示零 | `service/ReserveRecordService` | 混合与空数据通过，状态顺序为 PENDING / PASS / REJECT / CANCEL |
+| 按资源分组、全部状态计入总数、正确通过率 | `service/ReserveRecordServiceImpl` | 多资源、多状态、零通过、空数据、删除资源通过 |
+| PASS 降序 TopN，使用 sorted 和 limit | `service/ReserveRecordServiceImpl` | 同热度、超过总数、非法条数通过 |
+| 按申请人分组，统计总提交、通过、驳回 | `service/ReserveRecordServiceImpl` | 多用户混合记录及各报表总数核对通过 |
+| 四种状态全局汇总，缺失状态显示零 | `service/ReserveRecordServiceImpl` | 混合与空数据通过，状态顺序为 PENDING / PASS / REJECT / CANCEL |
 | 管理员四个入口、学生不可访问、Result 友好提示 | `controller`、`view/AdminView` | 菜单、服务与控制器越权、非法输入及 EOF 通过 |
 | 实时计算、无报表持久化、原业务不变 | 原 MVC 包和原 DAO | 提交、审核、取消、删除后重查通过；旧业务回归及 14 组前后版本会话一致 |
 | 继承业务数据并独立运行 | 本任务自己的三个业务文件 | 已备份并迁移 2 个账号、4 条资源、1 条预约；四次独立 JVM 校验通过 |
@@ -50,7 +50,7 @@ src/com/campus/reservation/
 ├── SystemMain.java       启动装配
 ├── view/                 MainView、AdminView、StudentView、ConsoleView
 ├── controller/           三个控制器及 ControllerSupport
-├── service/              UserService、ResourceService、ReserveRecordService、Operations 接口及 BusinessRules
+├── service/              UserServiceImpl、ResourceServiceImpl、ReserveRecordServiceImpl、对应 Service 接口及 BusinessRules
 ├── dao/                  UserDao、ResourceDao、ReserveRecordDao、DaoFactory
 ├── entity/               三个业务实体及 ResourceStatDTO、UserStatDTO、StatusStatDTO
 ├── enums/                ReserveStatus、ResourceStatus
@@ -59,7 +59,7 @@ src/com/campus/reservation/
 └── utils/                FileUtil
 ```
 
-资源实体的状态继续使用 String，Service / DAO 用 `ResourceStatus.name()` 对接，文件数据无需格式转换。统计实现位于 `ReserveRecordService`；`ReserveOperations` 和 `ReserveController` 增加四个同名入口：
+资源实体的状态继续使用 String，Service / DAO 用 `ResourceStatus.name()` 对接，文件数据无需格式转换。统计实现位于 `ReserveRecordServiceImpl`；`ReserveRecordService` 和 `ReserveController` 增加四个同名入口：
 
 | 方法 | 返回数据 | 管理员菜单 |
 | --- | --- | --- |
@@ -169,3 +169,41 @@ python .\tests\verify-back.py --jdk D:/jdk8 --tasks 14
 用户复验：启动后在首页输入 `back`，应仍显示首页；进入注册，在密码处输入 `back`，应回首页且不新增账号；使用原账号登录。在新增资源或预约等当前已有表单中途输入 `back`，应回角色菜单且没有写入；角色菜单再输入 `back`，应回首页。最后输入 `0` 退出，全程启动提示只出现一次。 如需验证字面值，在文本字段输入 `\back` 应作为普通 `back` 处理；格式受限字段仍按原规则校验。沿用上文原运行方式，IDE 图形运行按钮本轮未点击，留用户复测。当前为“自测通过，待用户验收”，未暂存、提交或推送。
 
 [返回任务索引](../README.md)
+
+## Service 命名调整（2026-11-16）
+
+用户明确授权同时调整任务 10–14；以当前提交 `280a60a` 的各阶段独立源码为基线，不重新复制上一任务、不推进任务 15。原 `*Operations` 接口与 `*Service` 实现的名称不够直观，本轮统一为以下配对，仍放在原 `service` 包，不增加 `impl` 子包或新架构层。
+
+| 接口 | 实现类 | 验证 |
+| --- | --- | --- |
+| `UserService.java` | `UserServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ResourceService.java` | `ResourceServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ReserveRecordService.java` | `ReserveRecordServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+
+`BusinessRules.java` 是包内规则工具，不是服务接口或实现，名称不变。任务 10–11 保留构造注入；任务 12–14 的饿汉单例保留在 `*ServiceImpl`，UI/Controller 的业务字段继续依赖 `*Service` 接口。调用端、Java 测试、结构回归检查、当前实现说明已同步；业务方法体、DAO、实体、状态机和持久化格式不变。
+
+### 本轮实际自测
+
+环境：macOS，Zulu OpenJDK `17.0.18`。每个任务单独用 `javac --release 8 -encoding UTF-8 -Xlint:all` 编译源码和测试，再用 JDK 17 运行；这是 Java 8 API/字节码兼容编译，不宣称已在 JDK 8 运行复验。
+
+- RegressionTest：PASS RegressionTest: 103 checks；StateMachineTest：PASS StateMachineTest: 108 checks；SingletonTest：PASS singleton checks=15；MvcTest：PASS MVC controller checks=26；StatisticsTest：PASS statistics checks=72；verify-cli.py：{"cliSessions": 7, "checks": 30, "result": "PASS"}；verify-mvc.py：PASS MVC boundaries / unchanged packages / CLI parity: 160 checks, 14 paired sessions；verify-statistics.py：PASS statistics CLI: 53 checks, 11 sessions
+- 返回导航：47 次会话、274 项断言、27 个表单取消输入点全部通过。
+- 测试仅使用临时目录和被忽略的 `data/` 中的隔离演示样本；本工作区没有本任务正式 user/resource/reserve 文件，未创建或替换真实账号和业务数据，也不把历史迁移记录当成本机数据存在的证明。
+- 运行日志：本机 `data/service-rename-20261116/`；原阶段测试和用户验收记录保留。
+
+从仓库根目录复验返回操作（将 JDK 路径替换为本机路径）：
+
+```text
+python tests/verify-back.py --jdk <JDK目录> --tasks 14
+```
+
+独立编译运行（macOS/Linux，在本任务目录执行；生成物只放在忽略的 data 下）：
+
+```sh
+mkdir -p data/service-check/classes data/service-check/demo
+find src -name '*.java' > data/service-check/sources.txt
+javac --release 8 -encoding UTF-8 -d data/service-check/classes @data/service-check/sources.txt
+(cd data/service-check/demo && java -cp ../classes com.campus.reservation.SystemMain)
+```
+
+Windows 继续使用既有 `run.ps1` / `test.ps1`；本轮未执行 PowerShell 脚本和 IDE 图形按钮。用户复测：核对三对接口/实现文件，运行登录、资源查询及预约菜单，在表单中输入 `back` 应取消并返回，原业务行为不变。管理员再查看四类统计，结果应与预约记录一致。

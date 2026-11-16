@@ -1,6 +1,6 @@
 # 任务10 V3.1 三层架构重构
 
-状态：自测通过，待用户验收。2026-11-13 已补充全局 back 返回；原阶段验收历史保留，本轮需用户复验，尚未提交。
+状态：代码重命名与自测完成，UML 图源及预览已同步；原生 VPP 更新和 Visual Paradigm 16.2 复验待完成，待用户验收。 2026-11-16 基于 `280a60a` 修改，未提交；此前验收记录保留，不代表本轮已验收。
 
 前置版本：[任务09 V3.0](../任务09-V3.0-资源预约核心业务开发/README.md)。基线为 `fad293c`，其中任务 9 源码提交为 `b01dfe7`。本项目独立编译、运行，使用自己的数据副本。
 
@@ -27,7 +27,7 @@
 | UI 只做交互，业务和数据存取分离 | `ConsoleUI`、三个 Service、三个 DAO | 检查 UI 无 DAO/文件访问，Service 无控制台和直接文件操作，通过 |
 | 业务功能完全不变 | 三个 Service、`BusinessRules` | 24 组任务 9/10 CLI 场景的输出、退出码及落盘数据一致；仅归一化版本号、随机编号和生成时间 |
 | 保留 Result、自定义异常、Stream/Optional | service、DAO 主键查找 | 103 项原生 Java 断言通过，失败数据为空并有中文提示 |
-| 接口隔离、依赖倒置 | `UserOperations`、`ResourceOperations`、`ReserveOperations` | UI 依赖三个按模块拆分的业务契约，构造器注入实现 |
+| 接口隔离、依赖倒置 | `UserService`、`ResourceService`、`ReserveService` | UI 依赖三个按模块拆分的业务契约，构造器注入实现 |
 | 三层 UML 核心包、类、字段、方法、可见性和依赖 | `docs/uml/` | PlantUML 图源及 SVG/PNG 已生成，125 个图示成员名与源码匹配，已目视检查文字和箭头 |
 | 持久化数据独立继承 | 三个数据文件与本地迁移备份 | 2 个账号、4 条资源、1 条预约全部迁移；登录、查询、重启和关联验证通过 |
 | 原生 Java，JDK 8+，独立运行 | `run.ps1`、OpenIDEA 配置 | Oracle JDK 1.8.0_341 编译及运行通过 |
@@ -38,14 +38,16 @@ DAO 在本阶段仍为具体类；接口隔离和依赖倒置具体应用在 UI 
 
 ## 目录与 UML
 
+> **2026-11-16 更新范围：** 本轮 Service 命名已同步到 PlantUML 与直接渲染的 SVG/PNG；本节有关 VPP、原生预览和 VP 16.2 核对的原记录仅描述历史版本。当前 VPP 尚未同步新名称，需另行完成，不能用历史验证替代本轮验证。
+
 ```text
 src/com/campus/reservation/
 ├── SystemMain.java
 ├── ui/console/ConsoleUI.java
 ├── service/
-│   ├── UserOperations.java / UserService.java
-│   ├── ResourceOperations.java / ResourceService.java
-│   ├── ReserveOperations.java / ReserveService.java
+│   ├── UserService.java / UserServiceImpl.java
+│   ├── ResourceService.java / ResourceServiceImpl.java
+│   ├── ReserveService.java / ReserveServiceImpl.java
 │   └── BusinessRules.java
 ├── dao/
 │   ├── UserDao.java
@@ -76,9 +78,9 @@ UML 分为主图和两张明细图，避免把所有成员挤在一张图中：
 | 实体字段、Result、预约状态及逻辑外键 | [models.puml](docs/uml/models.puml) | [SVG](docs/uml/models.svg) | [PNG](docs/uml/models.png) |
 | BusinessException 与全部子异常 | [exceptions.puml](docs/uml/exceptions.puml) | [SVG](docs/uml/exceptions.svg) | [PNG](docs/uml/exceptions.png) |
 
-原生 VPP 导出预览：[主图](docs/uml/vpp-preview/architecture.png)、[实体](docs/uml/vpp-preview/models.png)、[异常](docs/uml/vpp-preview/exceptions.png)。点击主图可查看原尺寸，或用 SVG / VPP 放大查看成员。
+原生 VPP 导出预览：[主图](docs/uml/architecture.png)、[实体](docs/uml/vpp-preview/models.png)、[异常](docs/uml/vpp-preview/exceptions.png)。点击主图可查看原尺寸，或用 SVG / VPP 放大查看成员。
 
-[![任务10 三层架构原生类图](docs/uml/vpp-preview/architecture.png)](docs/uml/vpp-preview/architecture.png)
+[![任务10 三层架构原生类图](docs/uml/architecture.png)](docs/uml/architecture.png)
 
 `+` 为 public、`-` 为 private、`~` 为包内可见。实体完整 getter/setter 见源码；图中显示核心成员，接口上的业务方法由对应 Service 实现。
 
@@ -203,3 +205,45 @@ UML 已同步输入转义方法、返回信号及其交互层依赖，包含 32 
 用户复验：启动后在首页输入 `back`，应仍显示首页；进入注册，在密码处输入 `back`，应回首页且不新增账号；使用原账号登录。在新增资源或预约等当前已有表单中途输入 `back`，应回角色菜单且没有写入；角色菜单再输入 `back`，应回首页。最后输入 `0` 退出，全程启动提示只出现一次。 如需验证字面值，在文本字段输入 `\back` 应作为普通 `back` 处理；格式受限字段仍按原规则校验。沿用上文原运行方式，IDE 图形运行按钮本轮未点击，留用户复测。当前为“自测通过，待用户验收”，未暂存、提交或推送。
 
 [返回任务索引](../README.md)
+
+## Service 命名调整（2026-11-16）
+
+用户明确授权同时调整任务 10–14；以当前提交 `280a60a` 的各阶段独立源码为基线，不重新复制上一任务、不推进任务 15。原 `*Operations` 接口与 `*Service` 实现的名称不够直观，本轮统一为以下配对，仍放在原 `service` 包，不增加 `impl` 子包或新架构层。
+
+| 接口 | 实现类 | 验证 |
+| --- | --- | --- |
+| `UserService.java` | `UserServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ResourceService.java` | `ResourceServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ReserveService.java` | `ReserveServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+
+`BusinessRules.java` 是包内规则工具，不是服务接口或实现，名称不变。任务 10–11 保留构造注入；任务 12–14 的饿汉单例保留在 `*ServiceImpl`，UI/Controller 的业务字段继续依赖 `*Service` 接口。调用端、Java 测试、结构回归检查、当前实现说明已同步；业务方法体、DAO、实体、状态机和持久化格式不变。
+
+### 本轮实际自测
+
+环境：macOS，Zulu OpenJDK `17.0.18`。每个任务单独用 `javac --release 8 -encoding UTF-8 -Xlint:all` 编译源码和测试，再用 JDK 17 运行；这是 Java 8 API/字节码兼容编译，不宣称已在 JDK 8 运行复验。
+
+- RegressionTest：PASS: 103 checks
+- 返回导航：46 次会话、267 项断言、26 个表单取消输入点全部通过。
+- 测试仅使用临时目录和被忽略的 `data/` 中的隔离演示样本；本工作区没有本任务正式 user/resource/reserve 文件，未创建或替换真实账号和业务数据，也不把历史迁移记录当成本机数据存在的证明。
+- 运行日志：本机 `data/service-rename-20261116/`；原阶段测试和用户验收记录保留。
+
+从仓库根目录复验返回操作（将 JDK 路径替换为本机路径）：
+
+```text
+python tests/verify-back.py --jdk <JDK目录> --tasks 10
+```
+
+独立编译运行（macOS/Linux，在本任务目录执行；生成物只放在忽略的 data 下）：
+
+```sh
+mkdir -p data/service-check/classes data/service-check/demo
+find src -name '*.java' > data/service-check/sources.txt
+javac --release 8 -encoding UTF-8 -d data/service-check/classes @data/service-check/sources.txt
+(cd data/service-check/demo && java -cp ../classes com.campus.reservation.SystemMain)
+```
+
+Windows 继续使用既有 `run.ps1` / `test.ps1`；本轮未执行 PowerShell 脚本和 IDE 图形按钮。用户复测：核对三对接口/实现文件，运行登录、资源查询及预约菜单，在表单中输入 `back` 应取消并返回，原业务行为不变。
+
+### UML 未完成项
+
+已同步受影响 PlantUML 图源并重新生成 SVG/PNG；改名前整套图保存在被忽略的 `data/service-rename-20261116/uml-before/`，也可从基线 `280a60a` 恢复。当前 `.vpp` 和 `vpp-preview/` **仍是改名前的历史版本**，没有冒充本轮已更新。本机没有指定的 Windows Visual Paradigm 16.2 环境，未修改原生工程数据库；须在该版本中同步接口/实现名称、成员类型和关系，保存后重新打开验证并重新导出原生预览。该交付项完成前，本轮不标为全部完成。

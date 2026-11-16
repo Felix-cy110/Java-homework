@@ -8,7 +8,13 @@
 
 本页提供中英文版本；各任务说明和原始课程材料保留中文。
 
-当前状态：原阶段验收历史保留，任务 13、14 包结构修正版已包含在当前提交 `8f07a0c`。本轮按用户要求为已实现的任务 01–14 补充全局 `back` 返回，JDK 8 自测通过，均待用户复验，尚未提交；任务 15–20 待实现。
+当前状态：任务 01–14 已有源码，任务 15–20 待实现；`back` 修改已包含在基线 `280a60a`。2026-11-16 按用户要求统一任务 10–14 的 `Service` 接口 / `ServiceImpl` 实现命名，五阶段独立编译、业务与导航回归通过，待用户验收，未提交。本机使用 JDK 17；任务 10、13 的 UML 图源和预览已同步，原生 VPP 更新及指定 VP 16.2 复验仍待完成。
+
+## Service 命名调整（2026-11-16）
+
+本次用户明确授权同时修改任务 10–14：接口使用 `UserService`、`ResourceService`、`ReserveService`（任务 10–12）或 `ReserveRecordService`（任务 13–14），实现类加 `Impl`，均留在原 service 包。`BusinessRules`、业务规则、构造注入/饿汉单例、DAO 和文件格式不变。下文带日期的原阶段记录继续保留，不表示本轮修改已获用户验收。
+
+五个项目均用 JDK 17.0.18 的 `--release 8` 独立编译，现有适用的 Java、CLI、MVC、统计回归通过；返回导航共 231 次会话、1,342 项断言通过。不宣称已在 JDK 8 运行或完成 Windows/IDE 复验。当前工作区五阶段均没有正式 user/resource/reserve 文件，本轮未迁移或覆盖业务数据。任务 10、13 原生 VPP 改名与 VP 16.2 复验仍待完成；每阶段 README 有详细结果和复验命令。
 
 ## 原始要求
 
@@ -104,12 +110,12 @@ python .\tests\verify-back.py --jdk D:/jdk8
 
 ## UML 架构图
 
-任务 13 的 MVC 类图如下，调用方向为 **View → Controller → Service → DAO**。原生 VPP、PlantUML 和预览已同步 `common` / `enums` 包、服务类名及本次 `BackNavigation` 返回交互；预览由 Visual Paradigm 16.2 原生工程导出，点击可查看原尺寸。此图对应任务 13，不包含任务 14 新增的统计 DTO 和方法。
+任务 13 的 MVC 类图如下，调用方向为 **View → Controller → Service → DAO**。2026-11-16 已将 PlantUML 图源和直接渲染的 SVG/PNG 同步为 Service / ServiceImpl 命名；下图不是新一轮 VP 原生导出。现有 `.vpp` 与 `vpp-preview/` 保留为改名前历史版本，仍需使用指定 VP 16.2 更新并重开复验。此图对应任务 13，不包含任务 14 新增的统计 DTO 和方法。
 
-[![任务13 MVC 类图：View 与 Controller](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)](任务13-V4.0-MVC架构/docs/uml/vpp-preview/architecture.png)
+[![任务13 MVC 类图：View 与 Controller](任务13-V4.0-MVC架构/docs/uml/architecture.png)](任务13-V4.0-MVC架构/docs/uml/architecture.png)
 
 - [完整四张 UML 图与架构演进说明](任务13-V4.0-MVC架构/README.md#uml-交付物)：View / Controller、Service / DAO / 单例 / 工厂、实体与状态、异常继承。
-- [Visual Paradigm 可编辑工程（VPP）](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [主图 SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML 图源](任务13-V4.0-MVC架构/docs/uml/architecture.puml)。
+- [Visual Paradigm 历史工程（VPP，改名待同步）](任务13-V4.0-MVC架构/docs/uml/任务13-MVC架构.vpp) · [主图 SVG](任务13-V4.0-MVC架构/docs/uml/architecture.svg) · [PlantUML 图源](任务13-V4.0-MVC架构/docs/uml/architecture.puml)。
 - [任务 10 三层架构 UML](任务10-V3.1-三层架构重构/README.md)：保留当期三层结构并同步返回交互，修改前图保留于备份和基线提交，便于对比 MVC 演进。
 
 ## 迭代方式

@@ -30,7 +30,7 @@ def digest(path):
 
 
 # 仅允许统计相关文件变化，其他源码逐文件保持基线字节一致。
-changed = {'service/ReserveRecordService.java', 'service/ReserveOperations.java',
+changed = {'service/ReserveRecordServiceImpl.java', 'service/ReserveRecordService.java',
            'controller/ReserveController.java', 'view/AdminView.java', 'view/MainView.java', 'SystemMain.java'}
 for path in (baseline / package).rglob('*.java'):
     relative = path.relative_to(baseline / package)
@@ -45,8 +45,8 @@ entry = entry.replace('启动装配：加载 DAO 数据，启动 MVC 主视图�
 check(entry == old_entry, 'startup behavior unchanged')
 
 # 删除本轮新增的统计块后，原预约方法与单例初始化必须与基线完全相同。
-old_service = (baseline / package / 'service/ReserveRecordService.java').read_text(encoding='utf-8-sig')
-new_service = (task / package / 'service/ReserveRecordService.java').read_text(encoding='utf-8-sig')
+old_service = (baseline / package / 'service/ReserveRecordServiceImpl.java').read_text(encoding='utf-8-sig')
+new_service = (task / package / 'service/ReserveRecordServiceImpl.java').read_text(encoding='utf-8-sig')
 start = new_service.index('    /** 管理员按资源查看全部状态的数量；')
 end = new_service.index('    /** 审核与取消都经过枚举规则，')
 statistics = new_service[start:end]
@@ -61,12 +61,13 @@ check(not re.search(r'\b(?:for|while)\s*\(|new\s+HashMap', statistics), 'no manu
 for api in ('groupingBy(', 'counting()', '.sorted(', '.limit('):
     check(api in statistics, 'statistics use ' + api)
 
-# 原文要求的包和类型必须存在，且旧路径不能遗留重复类。
+# 核对原文包结构及用户要求的 Service/ServiceImpl 配对，旧路径不得遗留重复类。
 required = {'entity': {'User', 'CampusResource', 'ReserveRecord'},
             'enums': {'ReserveStatus', 'ResourceStatus'}, 'common': {'Result', 'BusinessException'},
             'view': {'MainView', 'AdminView', 'StudentView'},
             'controller': {'UserController', 'ResourceController', 'ReserveController'},
-            'service': {'UserService', 'ResourceService', 'ReserveRecordService'},
+            'service': {'UserService', 'ResourceService', 'ReserveRecordService',
+                        'UserServiceImpl', 'ResourceServiceImpl', 'ReserveRecordServiceImpl'},
             'dao': {'UserDao', 'ResourceDao', 'ReserveRecordDao', 'DaoFactory'}}
 for folder, names in required.items():
     for name in names:
@@ -93,7 +94,7 @@ for path in (task / package).rglob('*.java'):
 old_classes = root / 'baseline-classes'
 old_classes.mkdir()
 sources = [str(p) for p in (baseline / 'src').rglob('*.java')]
-subprocess.run([str(java.with_name('javac.exe')), '-encoding', 'UTF-8', '-d', str(old_classes), *sources], check=True)
+subprocess.run([str(java.with_name('javac.exe' if java.suffix == '.exe' else 'javac')), '-encoding', 'UTF-8', '-d', str(old_classes), *sources], check=True)
 student = ['1', 'student_demo', 'Student123']
 admin = ['1', 'admin', '123456']
 # 密码来自已提交的演示文件，不读取正式账号；避免样例口令修改造成误判。

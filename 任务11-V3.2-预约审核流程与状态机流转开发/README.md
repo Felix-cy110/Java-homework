@@ -1,6 +1,6 @@
 # 任务11 V3.2 预约审核流程与状态机流转开发
 
-状态：自测通过，待用户验收。2026-11-13 已补充全局 back 返回；原阶段验收历史保留，本轮需用户复验，尚未提交。
+状态：本轮 Service 命名调整自测通过，待用户验收。 2026-11-16 基于 `280a60a` 修改，未提交；此前验收记录保留，不代表本轮已验收。
 
 前置版本：[任务10 V3.1](../任务10-V3.1-三层架构重构/README.md)。本项目已在当前目录独立编译、运行；源码和运行数据均不引用其他任务目录。
 
@@ -29,7 +29,7 @@
 
 任务 10 的通过、驳回和取消已能运行，但合法状态分别在审核、取消方法中判断，缺少集中定义的状态机；八列记录没有独立审核字段，驳回原因会覆盖学生原备注。本次保留三层调用和已有用户/资源 CRUD，仅在预约模块增量完善：
 
-- [ReserveStatus](src/com/campus/reservation/entity/ReserveStatus.java) 集中定义四条合法路径；[ReserveService](src/com/campus/reservation/service/ReserveService.java) 的审核与取消共用校验，非法流转抛出 `ReserveStatusTransitionException` 后转换为失败 `Result`。
+- [ReserveStatus](src/com/campus/reservation/entity/ReserveStatus.java) 集中定义四条合法路径；[ReserveServiceImpl](src/com/campus/reservation/service/ReserveServiceImpl.java) 的审核与取消共用校验，非法流转抛出 `ReserveStatusTransitionException` 后转换为失败 `Result`。
 - [ReserveRecord](src/com/campus/reservation/entity/ReserveRecord.java) 增加 `rejectReason`、`auditTime`；审核生成时间，驳回原因独立保存，取消保留已有审核信息。只有持久化成功后才发布新的记录，失败不提前修改原对象。
 - [ReserveRecordDao](src/com/campus/reservation/dao/ReserveRecordDao.java) 同时读取八列、十列，统一写十列；`FileUtil` 的转义和原子替换继续复用。
 - [ConsoleUI](src/com/campus/reservation/ui/console/ConsoleUI.java) 增加管理员菜单 `8.查看待审核预约`；菜单 `6.审核预约` 仅在 REJECT 时询问原因。我的预约、全部预约和筛选结果显示状态、原因及审核时间。
@@ -40,10 +40,10 @@
 
 | 本次必做要求 | 实现位置 | 实际验证结果 |
 | --- | --- | --- |
-| 四种枚举状态、四条合法流转，其余拒绝 | ReserveStatus、ReserveService、自定义状态异常 | 4×4 矩阵、空状态、重复操作及非法操作不写文件，通过 |
+| 四种枚举状态、四条合法流转，其余拒绝 | ReserveStatus、ReserveServiceImpl、自定义状态异常 | 4×4 矩阵、空状态、重复操作及非法操作不写文件，通过 |
 | 独立 rejectReason、auditTime | ReserveRecord、ReserveRecordDao | 原备注保留、十列特殊字符/时间往返、八列迁移，通过 |
-| 待审核列表、审核通过/驳回、审核时间 | ReserveOperations、ReserveService、ConsoleUI | 只显示 PENDING，学生/未登录拒绝访问；通过与驳回自动记录时间，通过 |
-| 取消校验、资源占用/释放联动 | ReserveService | 只能取消本人 PENDING/PASS；存在其他 PASS 时保持占用；文件写入失败补偿，通过 |
+| 待审核列表、审核通过/驳回、审核时间 | ReserveService、ReserveServiceImpl、ConsoleUI | 只显示 PENDING，学生/未登录拒绝访问；通过与驳回自动记录时间，通过 |
+| 取消校验、资源占用/释放联动 | ReserveServiceImpl | 只能取消本人 PENDING/PASS；存在其他 PASS 时保持占用；文件写入失败补偿，通过 |
 | 原用户/资源 CRUD、Result、三层结构保持 | 继承任务 10 源码 | 103 项原业务回归、三层依赖与未修改模块核对，通过 |
 | 持久化数据迁移 | 当前任务独立数据副本 | 2 个账号、4 条资源、1 条预约备份转换、登录/查询/重启/关联检查，通过 |
 
@@ -157,3 +157,41 @@ python .\tests\verify-back.py --jdk D:/jdk8 --tasks 11
 用户复验：启动后在首页输入 `back`，应仍显示首页；进入注册，在密码处输入 `back`，应回首页且不新增账号；使用原账号登录。在新增资源或预约等当前已有表单中途输入 `back`，应回角色菜单且没有写入；角色菜单再输入 `back`，应回首页。最后输入 `0` 退出，全程启动提示只出现一次。 如需验证字面值，在文本字段输入 `\back` 应作为普通 `back` 处理；格式受限字段仍按原规则校验。沿用上文原运行方式，IDE 图形运行按钮本轮未点击，留用户复测。当前为“自测通过，待用户验收”，未暂存、提交或推送。
 
 [返回任务索引](../README.md)
+
+## Service 命名调整（2026-11-16）
+
+用户明确授权同时调整任务 10–14；以当前提交 `280a60a` 的各阶段独立源码为基线，不重新复制上一任务、不推进任务 15。原 `*Operations` 接口与 `*Service` 实现的名称不够直观，本轮统一为以下配对，仍放在原 `service` 包，不增加 `impl` 子包或新架构层。
+
+| 接口 | 实现类 | 验证 |
+| --- | --- | --- |
+| `UserService.java` | `UserServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ResourceService.java` | `ResourceServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ReserveService.java` | `ReserveServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+
+`BusinessRules.java` 是包内规则工具，不是服务接口或实现，名称不变。任务 10–11 保留构造注入；任务 12–14 的饿汉单例保留在 `*ServiceImpl`，UI/Controller 的业务字段继续依赖 `*Service` 接口。调用端、Java 测试、结构回归检查、当前实现说明已同步；业务方法体、DAO、实体、状态机和持久化格式不变。
+
+### 本轮实际自测
+
+环境：macOS，Zulu OpenJDK `17.0.18`。每个任务单独用 `javac --release 8 -encoding UTF-8 -Xlint:all` 编译源码和测试，再用 JDK 17 运行；这是 Java 8 API/字节码兼容编译，不宣称已在 JDK 8 运行复验。
+
+- RegressionTest：PASS: 103 checks；StateMachineTest：PASS StateMachineTest: 117 checks
+- 返回导航：46 次会话、267 项断言、26 个表单取消输入点全部通过。
+- 测试仅使用临时目录和被忽略的 `data/` 中的隔离演示样本；本工作区没有本任务正式 user/resource/reserve 文件，未创建或替换真实账号和业务数据，也不把历史迁移记录当成本机数据存在的证明。
+- 运行日志：本机 `data/service-rename-20261116/`；原阶段测试和用户验收记录保留。
+
+从仓库根目录复验返回操作（将 JDK 路径替换为本机路径）：
+
+```text
+python tests/verify-back.py --jdk <JDK目录> --tasks 11
+```
+
+独立编译运行（macOS/Linux，在本任务目录执行；生成物只放在忽略的 data 下）：
+
+```sh
+mkdir -p data/service-check/classes data/service-check/demo
+find src -name '*.java' > data/service-check/sources.txt
+javac --release 8 -encoding UTF-8 -d data/service-check/classes @data/service-check/sources.txt
+(cd data/service-check/demo && java -cp ../classes com.campus.reservation.SystemMain)
+```
+
+Windows 继续使用既有 `run.ps1` / `test.ps1`；本轮未执行 PowerShell 脚本和 IDE 图形按钮。用户复测：核对三对接口/实现文件，运行登录、资源查询及预约菜单，在表单中输入 `back` 应取消并返回，原业务行为不变。

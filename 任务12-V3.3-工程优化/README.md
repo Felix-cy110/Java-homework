@@ -1,6 +1,6 @@
 # 任务12 V3.3 工程优化
 
-状态：自测通过，待用户验收。2026-11-13 已补充全局 back 返回；原阶段验收历史保留，本轮需用户复验，尚未提交。
+状态：本轮 Service 命名调整自测通过，待用户验收。 2026-11-16 基于 `280a60a` 修改，未提交；此前验收记录保留，不代表本轮已验收。
 
 前置版本：[任务11 V3.2](../任务11-V3.2-预约审核流程与状态机流转开发/README.md)。本任务继承已验收源码和独立数据副本，可独立编译运行。
 
@@ -27,7 +27,7 @@
 
 ## 实现与测试记录
 
-- `UserService`、`ResourceService`、`ReserveService` 与三个 DAO 均采用私有构造器、静态唯一实例和 `getInstance()`。任务书称预约服务为 `ReserveRecordService`，本阶段沿用已验收的 `ReserveService` 类名。
+- `UserServiceImpl`、`ResourceServiceImpl`、`ReserveServiceImpl` 与三个 DAO 均采用私有构造器、静态唯一实例和 `getInstance()`。任务书称预约服务为 `ReserveRecordService`，本阶段沿用已验收的 `ReserveServiceImpl` 类名。
 - `dao/DaoFactory.java` 统一返回 DAO 单例，服务通过工厂获取，入口按文件顺序初始化并获取服务。文件读写、实体、业务规则与接口保持任务 11 的实现；未引入 Maven、框架、DAO 接口或 MVC。
 - DAO 在类初始化时只尝试加载一次；加载错误被保留并由入口提示对应文件。修复损坏文件后需要重新启动程序，不能在同一 JVM 中重新加载。
 - 可选 UML 未选择；任务 10 原图不变。
@@ -86,3 +86,43 @@ python .\tests\verify-back.py --jdk D:/jdk8 --tasks 12
 用户复验：启动后在首页输入 `back`，应仍显示首页；进入注册，在密码处输入 `back`，应回首页且不新增账号；使用原账号登录。在新增资源或预约等当前已有表单中途输入 `back`，应回角色菜单且没有写入；角色菜单再输入 `back`，应回首页。最后输入 `0` 退出，全程启动提示只出现一次。 如需验证字面值，在文本字段输入 `\back` 应作为普通 `back` 处理；格式受限字段仍按原规则校验。沿用上文原运行方式，IDE 图形运行按钮本轮未点击，留用户复测。当前为“自测通过，待用户验收”，未暂存、提交或推送。
 
 [返回任务索引](../README.md)
+
+## Service 命名调整（2026-11-16）
+
+用户明确授权同时调整任务 10–14；以当前提交 `280a60a` 的各阶段独立源码为基线，不重新复制上一任务、不推进任务 15。原 `*Operations` 接口与 `*Service` 实现的名称不够直观，本轮统一为以下配对，仍放在原 `service` 包，不增加 `impl` 子包或新架构层。
+
+| 接口 | 实现类 | 验证 |
+| --- | --- | --- |
+| `UserService.java` | `UserServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ResourceService.java` | `ResourceServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+| `ReserveService.java` | `ReserveServiceImpl.java` | 声明、implements、构造器和调用引用核对通过 |
+
+`BusinessRules.java` 是包内规则工具，不是服务接口或实现，名称不变。任务 10–11 保留构造注入；任务 12–14 的饿汉单例保留在 `*ServiceImpl`，UI/Controller 的业务字段继续依赖 `*Service` 接口。调用端、Java 测试、结构回归检查、当前实现说明已同步；业务方法体、DAO、实体、状态机和持久化格式不变。
+
+### 本轮实际自测
+
+初次运行旧 `verify-cli.py` 时因本工作区尚无 `data/` 父目录而中止；创建被忽略的隔离数据目录后原脚本复验通过，未改动业务代码以绕过失败。
+
+环境：macOS，Zulu OpenJDK `17.0.18`。每个任务单独用 `javac --release 8 -encoding UTF-8 -Xlint:all` 编译源码和测试，再用 JDK 17 运行；这是 Java 8 API/字节码兼容编译，不宣称已在 JDK 8 运行复验。
+
+- RegressionTest：PASS RegressionTest: 103 checks；StateMachineTest：PASS StateMachineTest: 108 checks；SingletonTest：PASS singleton checks=15；verify-cli.py：{"cliSessions": 7, "checks": 30, "result": "PASS"}
+- 返回导航：46 次会话、267 项断言、26 个表单取消输入点全部通过。
+- 测试仅使用临时目录和被忽略的 `data/` 中的隔离演示样本；本工作区没有本任务正式 user/resource/reserve 文件，未创建或替换真实账号和业务数据，也不把历史迁移记录当成本机数据存在的证明。
+- 运行日志：本机 `data/service-rename-20261116/`；原阶段测试和用户验收记录保留。
+
+从仓库根目录复验返回操作（将 JDK 路径替换为本机路径）：
+
+```text
+python tests/verify-back.py --jdk <JDK目录> --tasks 12
+```
+
+独立编译运行（macOS/Linux，在本任务目录执行；生成物只放在忽略的 data 下）：
+
+```sh
+mkdir -p data/service-check/classes data/service-check/demo
+find src -name '*.java' > data/service-check/sources.txt
+javac --release 8 -encoding UTF-8 -d data/service-check/classes @data/service-check/sources.txt
+(cd data/service-check/demo && java -cp ../classes com.campus.reservation.SystemMain)
+```
+
+Windows 继续使用既有 `run.ps1` / `test.ps1`；本轮未执行 PowerShell 脚本和 IDE 图形按钮。用户复测：核对三对接口/实现文件，运行登录、资源查询及预约菜单，在表单中输入 `back` 应取消并返回，原业务行为不变。

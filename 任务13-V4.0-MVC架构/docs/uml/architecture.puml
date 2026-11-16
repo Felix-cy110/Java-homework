@@ -62,7 +62,7 @@ package "controller · 请求转发与异常边界" #EAEFFD {
     # requireNotEmpty(value : String, fieldName : String) : void
   }
   class UserController {
-    - userService : UserOperations
+    - userService : UserService
     + UserController()
     + checkUsername(username : String) : Result<Void>
     + initializeDefaultAdministrator() : Result<Void>
@@ -71,7 +71,7 @@ package "controller · 请求转发与异常边界" #EAEFFD {
     + findUserByUsername(username : String) : Result<User>
   }
   class ResourceController {
-    - resourceService : ResourceOperations
+    - resourceService : ResourceService
     + ResourceController()
     + addResource(user : User, name : String, type : String, location : String) : Result<CampusResource>
     + queryResources(user : User, keyword : String) : Result<List<CampusResource>>
@@ -79,7 +79,7 @@ package "controller · 请求转发与异常边界" #EAEFFD {
     + deleteResource(user : User, id : String) : Result<Void>
   }
   class ReserveController {
-    - reserveService : ReserveOperations
+    - reserveService : ReserveRecordService
     + ReserveController()
     + submitReservation(user : User, resourceId : String, start : LocalDateTime, end : LocalDateTime, remark : String) : Result<ReserveRecord>
     + queryMyReservations(user : User) : Result<List<ReserveRecord>>
@@ -91,12 +91,12 @@ package "controller · 请求转发与异常边界" #EAEFFD {
   }
 }
 package "service · 业务接口（实现见 services 图）" #EFF9EE {
-  interface UserOperations
-  interface ResourceOperations
-  interface ReserveOperations
-  class UserService <<Singleton>>
-  class ResourceService <<Singleton>>
-  class ReserveRecordService <<Singleton>>
+  interface UserService
+  interface ResourceService
+  interface ReserveRecordService
+  class UserServiceImpl <<Singleton>>
+  class ResourceServiceImpl <<Singleton>>
+  class ReserveRecordServiceImpl <<Singleton>>
 }
 package "dao · 启动加载（见 services 图）" #FFF4E4 {
   class DaoFactory <<Factory>>
@@ -125,15 +125,15 @@ ConsoleView --> ReserveController
 ControllerSupport <|-- UserController
 ControllerSupport <|-- ResourceController
 ControllerSupport <|-- ReserveController
-UserController --> UserOperations
-ResourceController --> ResourceOperations
-ReserveController --> ReserveOperations
-UserController ..> UserService : getInstance()
-ResourceController ..> ResourceService : getInstance()
-ReserveController ..> ReserveRecordService : getInstance()
-UserOperations <|.. UserService
-ResourceOperations <|.. ResourceService
-ReserveOperations <|.. ReserveRecordService
+UserController --> UserService
+ResourceController --> ResourceService
+ReserveController --> ReserveRecordService
+UserController ..> UserServiceImpl : getInstance()
+ResourceController ..> ResourceServiceImpl : getInstance()
+ReserveController ..> ReserveRecordServiceImpl : getInstance()
+UserService <|.. UserServiceImpl
+ResourceService <|.. ResourceServiceImpl
+ReserveRecordService <|.. ReserveRecordServiceImpl
 ControllerSupport ..> BusinessException : 捕获
 ControllerSupport ..> Result : 返回
 ConsoleView ..> Result : 展示

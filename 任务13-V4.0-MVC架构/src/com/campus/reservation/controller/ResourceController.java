@@ -3,18 +3,18 @@ package com.campus.reservation.controller;
 import com.campus.reservation.entity.CampusResource;
 import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.ResourceOperations;
 import com.campus.reservation.service.ResourceService;
+import com.campus.reservation.service.ResourceServiceImpl;
 import java.io.IOException;
 import java.util.List;
 
 /** 资源控制器：转发资源操作，权限和资源规则由原服务执行。 */
 public class ResourceController extends ControllerSupport {
-    private final ResourceOperations resourceService;
+    private final ResourceService resourceService;
 
     /** 获取资源服务单例，沿用其加载失败语义。 */
     public ResourceController() throws IOException {
-        resourceService = ResourceService.getInstance();
+        resourceService = ResourceServiceImpl.getInstance();
     }
 
     /** 转发新增资源及未经控制器加工的字段。 */

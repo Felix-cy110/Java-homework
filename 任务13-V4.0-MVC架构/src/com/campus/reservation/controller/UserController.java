@@ -2,17 +2,17 @@ package com.campus.reservation.controller;
 
 import com.campus.reservation.common.Result;
 import com.campus.reservation.entity.User;
-import com.campus.reservation.service.UserOperations;
 import com.campus.reservation.service.UserService;
+import com.campus.reservation.service.UserServiceImpl;
 import java.io.IOException;
 
 /** 用户控制器：接收视图参数，转发账号校验、登录与注册请求。 */
 public class UserController extends ControllerSupport {
-    private final UserOperations userService;
+    private final UserService userService;
 
     /** 获取已验收的服务单例，不创建新的业务实例。 */
     public UserController() throws IOException {
-        userService = UserService.getInstance();
+        userService = UserServiceImpl.getInstance();
     }
 
     /** 控制器检查账号非空，保留输入密码前提示失败的顺序。 */

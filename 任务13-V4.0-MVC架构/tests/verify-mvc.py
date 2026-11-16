@@ -41,7 +41,8 @@ def canonical_source(path):
 mapping = {'entity/Result.java': 'common/Result.java',
            'entity/ReserveStatus.java': 'enums/ReserveStatus.java',
            'exception/BusinessException.java': 'common/BusinessException.java',
-           'service/ReserveService.java': 'service/ReserveRecordService.java'}
+           'service/ReserveService.java': 'service/ReserveRecordService.java',
+           'service/ReserveServiceImpl.java': 'service/ReserveRecordServiceImpl.java'}
 for name in ('service', 'dao', 'entity', 'exception', 'utils'):
     for path in (baseline / package / name).glob('*.java'):
         relative = path.relative_to(baseline / package).as_posix()
@@ -49,12 +50,13 @@ for name in ('service', 'dao', 'entity', 'exception', 'utils'):
         check(target.is_file(), relative + ' migrated target exists')
         check(canonical_source(path) == canonical_source(target), relative + ' original behavior preserved')
 
-# 原文要求的包和类型必须存在，且旧路径不能遗留重复类。
+# 核对原文包结构及用户要求的 Service/ServiceImpl 配对，旧路径不得遗留重复类。
 required = {'entity': {'User', 'CampusResource', 'ReserveRecord'},
             'enums': {'ReserveStatus', 'ResourceStatus'}, 'common': {'Result', 'BusinessException'},
             'view': {'MainView', 'AdminView', 'StudentView'},
             'controller': {'UserController', 'ResourceController', 'ReserveController'},
-            'service': {'UserService', 'ResourceService', 'ReserveRecordService'},
+            'service': {'UserService', 'ResourceService', 'ReserveRecordService',
+                        'UserServiceImpl', 'ResourceServiceImpl', 'ReserveRecordServiceImpl'},
             'dao': {'UserDao', 'ResourceDao', 'ReserveRecordDao', 'DaoFactory'}}
 for folder, names in required.items():
     for name in names:
@@ -81,7 +83,7 @@ for path in (task / package).rglob('*.java'):
 old_classes = root / 'baseline-classes'
 old_classes.mkdir()
 sources = [str(p) for p in (baseline / 'src').rglob('*.java')]
-subprocess.run([str(java.with_name('javac.exe')), '-encoding', 'UTF-8', '-d', str(old_classes), *sources], check=True)
+subprocess.run([str(java.with_name('javac.exe' if java.suffix == '.exe' else 'javac')), '-encoding', 'UTF-8', '-d', str(old_classes), *sources], check=True)
 student = ['1', 'student_demo', 'Student123']
 admin = ['1', 'admin', '123456']
 # 密码来自已提交的演示文件，不读取正式账号；避免样例口令修改造成误判。

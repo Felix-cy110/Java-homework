@@ -1,9 +1,9 @@
 package com.campus.reservation;
 
 import com.campus.reservation.dao.DaoFactory;
-import com.campus.reservation.service.UserService;
-import com.campus.reservation.service.ResourceService;
-import com.campus.reservation.service.ReserveService;
+import com.campus.reservation.service.UserServiceImpl;
+import com.campus.reservation.service.ResourceServiceImpl;
+import com.campus.reservation.service.ReserveServiceImpl;
 import com.campus.reservation.ui.console.ConsoleUI;
 import java.io.IOException;
 
@@ -20,8 +20,8 @@ public class SystemMain {
             DaoFactory.getResourceDao();
             loadingFile = "reserve.txt";
             DaoFactory.getReserveRecordDao();
-            ConsoleUI ui = new ConsoleUI(UserService.getInstance(),
-                    ResourceService.getInstance(), ReserveService.getInstance());
+            ConsoleUI ui = new ConsoleUI(UserServiceImpl.getInstance(),
+                    ResourceServiceImpl.getInstance(), ReserveServiceImpl.getInstance());
             exitCode = ui.run();
         } catch (IOException e) {
             ConsoleUI.showStartupError("系统错误：数据加载失败，请检查 " + loadingFile

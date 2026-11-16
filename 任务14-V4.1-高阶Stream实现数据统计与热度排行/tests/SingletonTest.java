@@ -19,7 +19,7 @@ public class SingletonTest {
             return;
         }
         for (Class<?> type : new Class<?>[] {UserDao.class, ResourceDao.class,
-                ReserveRecordDao.class, UserService.class, ResourceService.class, ReserveRecordService.class}) {
+                ReserveRecordDao.class, UserServiceImpl.class, ResourceServiceImpl.class, ReserveRecordServiceImpl.class}) {
             for (Constructor<?> constructor : type.getDeclaredConstructors()) {
                 require(Modifier.isPrivate(constructor.getModifiers()), "构造器必须私有");
             }
@@ -30,9 +30,9 @@ public class SingletonTest {
         require(users == DaoFactory.getUserDao() && users == UserDao.getInstance(), "用户 DAO 身份");
         require(resources == DaoFactory.getResourceDao() && resources == ResourceDao.getInstance(), "资源 DAO 身份");
         require(records == DaoFactory.getReserveRecordDao() && records == ReserveRecordDao.getInstance(), "预约 DAO 身份");
-        require(UserService.getInstance() == UserService.getInstance(), "用户服务身份");
-        require(ResourceService.getInstance() == ResourceService.getInstance(), "资源服务身份");
-        require(ReserveRecordService.getInstance() == ReserveRecordService.getInstance(), "预约服务身份");
+        require(UserServiceImpl.getInstance() == UserServiceImpl.getInstance(), "用户服务身份");
+        require(ResourceServiceImpl.getInstance() == ResourceServiceImpl.getInstance(), "资源服务身份");
+        require(ReserveRecordServiceImpl.getInstance() == ReserveRecordServiceImpl.getInstance(), "预约服务身份");
 
         int beforeUsers = users.findAll().size();
         int beforeResources = resources.findAll().size();
