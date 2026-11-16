@@ -8,11 +8,11 @@ A campus resource reservation system developed for a comprehensive software cons
 
 This page is available in Chinese and English. Task documentation and original course materials remain in Chinese.
 
-Current status: Tasks 01–14 contain source code; Tasks 15–20 remain unimplemented. The `back` changes are included in baseline `280a60a`. On November 16, 2026, Tasks 10–14 were renamed to paired `Service` interfaces and `ServiceImpl` implementations as requested. Independent compilation, business regressions and navigation tests passed on JDK 17; user acceptance is pending and these new changes are uncommitted. UML sources and rendered previews are updated for Tasks 10 and 13, but native VPP updates and reopening in the specified VP 16.2 environment remain outstanding.
+Current status: Tasks 01–15 contain source code; Tasks 16–20 remain unimplemented. The user explicitly accepted Task 14 on November 16, 2026. Task 15 incrementally inherits accepted commit `402085d`, has passed JDK 17.0.18 self-tests and standalone verification, and is **awaiting user acceptance, uncommitted**. This round implements Task 15 only and retains the Service / ServiceImpl naming and back navigation rules. Historical native VPP updates and the specified VP 16.2 checks for Tasks 10 and 13 remain outstanding.
 
 ## Service Naming Update — November 16, 2026
 
-The user's cross-stage request applies only to Tasks 10–14. Interfaces now use `UserService`, `ResourceService`, and `ReserveService` (Tasks 10–12) or `ReserveRecordService` (Tasks 13–14); implementations append `Impl`. All remain in the existing service package. BusinessRules, business behavior, dependency injection / eager singletons, DAO code and persistence formats are unchanged. Earlier dated records describe previous work, not acceptance of this rename.
+The user's cross-stage request applies only to Tasks 10–14. Interfaces now use `UserService`, `ResourceService`, and `ReserveService` (Tasks 10–12) or `ReserveRecordService` (Tasks 13–14); implementations append `Impl`. All remain in the existing service package. BusinessRules, business behavior, dependency injection / eager singletons, DAO code and persistence formats are unchanged. The earlier self-test record is retained. The user has now explicitly accepted Task 14 only; acceptance is not inferred for other stages. The naming changes are included in `402085d`.
 
 Five projects compiled independently with JDK 17.0.18 and `--release 8`; applicable Java, CLI, MVC and statistics tests passed. Navigation tests passed 231 sessions and 1,342 assertions. This does not claim JDK 8 runtime, Windows-script or IDE verification. Formal user/resource/reservation files are absent from these five task directories in this workspace; no business data was migrated or replaced. Tasks 10 and 13 still need native VPP renaming and VP 16.2 verification. Details and reproducible commands are in each task README.
 
@@ -57,9 +57,9 @@ As requested by the user on November 10, 2026, later stages also inherit existin
 
 Under the user's updated requirements, Tasks 03–08 organize Java packages by responsibility under `src/com/campus/reservation/`. The entry point stays in the root package. Task 03 introduces `entity`, Task 04 adds `util`, Task 05 adds `exception`, Task 06 extends this structure with resource management, Task 07 adds `Result` to `entity`, and Task 08 continues with the same package structure. Compilation and execution continue to use the JDK and existing scripts, without Maven or frameworks. Tasks 1 and 2 retain their original structure. The source of these decisions is recorded in the [requirements review](docs/需求核对.md).
 
-Tasks 01–14 contain source code for their respective stages; Tasks 15–20 contain placeholders. Task 10 introduced UI / Service / DAO and UML, Task 11 completed reservation state transitions, Task 12 added singleton services and DAOs with a DAO factory, and Task 13 introduced View → Controller → Service → DAO. This correction adds the required enums and common packages and ReserveRecordService name to both Tasks 13 and 14. Task 14 provides four live Stream reports within the corrected MVC structure. Existing business rules and file formats remain compatible, and each task runs independently.
+Tasks 01–15 contain source code for their respective stages; Tasks 16–20 contain placeholders. Task 10 introduced UI / Service / DAO and UML, Task 11 completed reservation state transitions, Task 12 added singleton services and DAOs with a DAO factory, and Task 13 introduced View → Controller → Service → DAO. The earlier correction added the required enums and common packages and ReserveRecordService name to both Tasks 13 and 14. Task 14 provides four live Stream reports within the corrected MVC structure. Task 15 adds an annotation/reflection logging aspect and administrator log queries. Existing business rules and file formats remain compatible, and each task runs independently.
 
-Tasks 03–14 provide OpenIDEA run configurations that work from the repository root or their respective task directories. Task 14 has its own copy of Task 13's 2 accounts, 4 resources and 1 reservation; see its README for migration details.
+Tasks 03–14 provide OpenIDEA run configurations that work from the repository root or their respective task directories. Task 14 historically inherited 2 accounts, 4 resources and 1 reservation from Task 13. Those formal files are absent in this workspace on November 16, 2026, leaving no business data to migrate to Task 15; see the task READMEs. Task 15 provides independent run.sh / run.ps1 scripts; local IDE configurations were not added or verified this round.
 
 This local IntelliJ IDEA workspace contains independent modules and run configurations for Tasks 01–14; each uses its own task directory. The `.idea` configuration is local and ignored by Git. Task 14 was verified on the command line with JDK 8; its GUI run buttons await user verification.
 
@@ -67,7 +67,7 @@ Configuration fix recorded on November 10, 2026: IDEA previously loaded only an 
 
 ## Task Index
 
-Tasks 01–12 passed their original stage acceptance and were committed. Task 11's source commit is `05d8375`, with comment updates in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then requested package corrections in Tasks 13 and 14. Those corrections are included in current commit `8f07a0c`; a commit alone does not establish user acceptance. This November 13 round adds global navigation to Tasks 01–14; all passed self-tests and await renewed user acceptance. No staging, commit or push was performed this round. Tasks 15–20 remain unimplemented.
+Tasks 01–12 passed their original stage acceptance and were committed. Task 11's source commit is `05d8375`, with comment updates in `cfc1185`; Task 12's source commit is `4aa55d6`. Task 13's original source is `028a216`, with README updates in `ba1a743`. On November 11, 2026, the user accepted the original Task 13, then requested package corrections in Tasks 13 and 14. Those corrections were included in commit `8f07a0c`; a commit alone does not establish user acceptance. The November 13 navigation work covered Tasks 01–14, passed self-tests and awaited renewed user acceptance at the time; it is now included in later baselines. On November 16, 2026, the user explicitly accepted Task 14 (`402085d`). Task 15 is self-tested, awaiting user acceptance and uncommitted. Tasks 16–20 remain unimplemented.
 
 | Task | Version | Project |
 | --- | --- | --- |
@@ -96,6 +96,14 @@ Task 18's title conflicts with its detailed requirements. The directory retains 
 
 Task 14 adds administrator menu options **9. Resource statistics, 10. TopN popular resources, 11. User statistics, 12. Global reservation status**. Reports are computed from current reservation states, preserve groups for deleted resources, and are unavailable to students. See the [Task 14 run and acceptance instructions](任务14-V4.1-高阶Stream实现数据统计与热度排行/README.md).
 
+## Task 15 Automatic Operation Logs — November 16, 2026
+
+Based on accepted Task 14 commit `402085d`, Task 15 uses `@OperationLog` and native reflection to record registration/login, resource changes, and reservation submissions/reviews/cancellations without changing original Service method bodies. Logs append to an independent `operation_log.txt`. Administrators gain **13. All operation logs** and **14. Logs by username**, sorted newest first; students cannot query logs. Passwords are redacted, and logging failures do not replace business results.
+
+The full suite passed on JDK 17.0.18 with --release 8: 97 new logging checks, 4 restart checks, five log-file failure cases, 17 paired baseline sessions, and 47 back-navigation sessions, alongside existing regressions. A standalone copy also compiled, started and passed tests without other task directories. JDK 8 runtime, Windows wrappers and IDE buttons were not verified. Both source and target formal business files are absent, so zero records were migrated; sample data was not represented as real migration data.
+
+Run `sh run.sh` and `python3 tests/run-tests.py` inside Task 15. See the [Task 15 README](任务15-V4.2-自定义注解实现无侵入自动日志/README.md) for deliverables, results and acceptance steps. Status: **self-tested, awaiting user acceptance**. No staging, commit, push or Task 16 work was performed.
+
 ## Global Navigation (November 13, 2026)
 
 Every input page in Tasks 01–14 now accepts lowercase `back`, with one startup hint per run. It cancels an unfinished form and returns to its menu; at a role menu it logs out to the home menu, and at home it stays there. Task 1 has no home menu: it returns to the username prompt and still ends after one completed login check. Enter `\back` for literal text `back`; numeric menu options and business rules remain intact. This is a user-requested interaction improvement that preserves the assignment's architecture stages; see the [requirements review](docs/需求核对.md#用户追加的全局返回2026-11-13).
@@ -106,7 +114,7 @@ Under JDK `1.8.0_341`, the 14 independent projects passed 449 console sessions a
 python .\tests\verify-back.py --jdk D:/jdk8
 ```
 
-Add `--tasks 14` to test one stage. Tests use isolated demo data without reading or overwriting real accounts. Python is only a test tool; applications still use the JDK and existing scripts. Tasks 15–20 were not implemented early and will inherit this navigation rule when developed.
+Add `--tasks 14` to test one stage. Tests use isolated demo data without reading or overwriting real accounts. Python is only a test tool; applications still use the JDK and existing scripts. That navigation round did not implement Tasks 15–20 early. Task 15 now inherits the rule; Tasks 16–20 remain unimplemented.
 
 ## UML Architecture Diagrams
 
@@ -132,7 +140,7 @@ Task 13's MVC diagram follows **View → Controller → Service → DAO**. The P
 - The console version is the required baseline. Additional user interfaces in Task 20 are optional for bonus points and must not modify core business code.
 - Tasks 10 and 13 deliver UML class diagrams for the three-layer and MVC architectures, respectively. Task 13 includes PlantUML, SVG / PNG, and a native VPP reopened and checked with Visual Paradigm 16.2, while preserving Task 10's diagrams. Final delivery includes source code, a project report, and a recorded demonstration.
 - Runtime user, resource, reservation, and log files are ignored by Git. Demo data intended for version control belongs in each task's `samples/` directory, with loading instructions.
-- Tasks 01–14 were independently compiled and run with JDK `1.8.0_341`. The corrected Tasks 13 and 14 passed package checks, business regression, state machine, console, 14 paired baseline sessions each, and existing-data compatibility checks. Task 14 also passed all four report regressions. This round's navigation updates in Tasks 01–14 and IDE GUI buttons await user verification; see their READMEs. Tasks 15–20 are not yet implemented or tested.
+- Tasks 01–14 were independently compiled and run with JDK `1.8.0_341`. The corrected Tasks 13 and 14 passed package checks, business regression, state machine, console, 14 paired baseline sessions each, and existing-data compatibility checks. Task 14 also passed all four report regressions. See each task README for historical navigation acceptance; Task 14 is now explicitly accepted, while IDE GUI buttons still await verification. Task 15 has passed compilation with --release 8 and self-tests on JDK 17.0.18 (not JDK 8 runtime verification); Tasks 16–20 are not yet implemented or tested.
 
 ## Grading
 
